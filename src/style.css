@@ -31,4 +31,9 @@ html, body {
     padding: 0.25rem;
     border-radius: 0.25rem;
     white-space: pre-wrap;
+    list-style-position: inside;
+}
+
+.ProseMirror li[data-note] {
+    outline: 1px solid red;
 }

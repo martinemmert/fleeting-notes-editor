@@ -6,5 +6,8 @@ export function createEditorView(
   state: EditorState,
   editorProps?: DirectEditorProps
 ) {
-  return new EditorView(element, { ...editorProps, state });
+  const mount = document.createElement("ul");
+  element.append(mount);
+
+  return new EditorView({ mount }, { ...editorProps, state });
 }

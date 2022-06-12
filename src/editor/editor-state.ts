@@ -4,10 +4,20 @@ import { createEditorPluginsArray, Events } from "./editor-plugins";
 import { createEditorSchema } from "./editor-schema";
 import { Emitter } from "mitt";
 
-export function createEditorState(doc?: Node, eventEmitter?: Emitter<Events>) {
+export function createEditorState(
+  doc?: Node | {},
+  eventEmitter?: Emitter<Events>
+) {
+  const schema = createEditorSchema();
+  let initialDoc = doc;
+
+  if (doc && !(doc instanceof Node)) {
+    initialDoc = Node.fromJSON(schema, doc);
+  }
+
   return EditorState.create({
-    doc,
+    doc: initialDoc as Node,
     plugins: createEditorPluginsArray(eventEmitter),
-    schema: createEditorSchema(),
+    schema,
   });
 }

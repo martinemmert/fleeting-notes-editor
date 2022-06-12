@@ -3,9 +3,6 @@ import { Schema } from "prosemirror-model";
 export function createEditorSchema() {
   return new Schema({
     nodes: {
-      text: {
-        inline: true,
-      },
       note: {
         group: "block",
         content: "text*",
@@ -13,28 +10,26 @@ export function createEditorSchema() {
           id: {
             default: null,
           },
-          type: {
+          note: {
             default: "note",
           },
         },
         parseDOM: [
           {
-            tag: "p",
+            tag: "li[data-note]",
             getAttrs: (dom) => ({
               id: (dom as HTMLElement).getAttribute("data-id"),
-              type: (dom as HTMLElement).getAttribute("data-type"),
+              note: (dom as HTMLElement).getAttribute("data-note"),
             }),
           },
         ],
         toDOM(node) {
-          const { id, type } = node.attrs;
-          return ["p", { "data-id": id, "data-type": type }, 0];
+          const { id, note } = node.attrs;
+          return ["li", { "data-id": id, "data-note": note }, 0];
         },
       },
-
-      doc: {
-        content: "note+",
-      },
+      text: {},
+      doc: { content: "note+" },
     },
   });
 }

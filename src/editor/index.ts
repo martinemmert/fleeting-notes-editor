@@ -5,7 +5,7 @@ import mitt, { Emitter } from "mitt";
 import { Events } from "./editor-plugins";
 import { EditorState } from "prosemirror-state";
 
-export function createEditor(element: HTMLElement, doc?: Node) {
+export function createEditor(element: HTMLElement, doc?: Node | {}) {
   const eventEmitter = mitt<Events>();
   const state = createEditorState(doc, eventEmitter);
   const view = createEditorView(element, state);
