@@ -1,5 +1,6 @@
 import "./style.css";
 import { createEditor, createJSONView } from "./editor";
+import { applyDevTools } from "prosemirror-dev-toolkit";
 
 // const initialDoc = {
 //   type: "doc",
@@ -37,5 +38,7 @@ const app = document.querySelector<HTMLDivElement>("#app")!;
 const json = document.querySelector<HTMLDivElement>("#json")!;
 const editor = createEditor(app);
 void createJSONView(json, editor.emitter, editor.state);
+
+applyDevTools(editor.view, { devToolsExpanded: true });
 
 editor.view.focus();

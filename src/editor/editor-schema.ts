@@ -1,31 +1,54 @@
 import { Schema } from "prosemirror-model";
 
+const createAttributeGetter =
+  (attributes: string[]) => (dom: string | HTMLElement) => {
+    if (typeof dom === "string") return {};
+    const attr: Record<string, string> = {};
+    for (const attribute of attributes) {
+      const domAttr = dom.getAttribute(`data-${attribute}`);
+      if (domAttr) attr[attribute] = domAttr;
+    }
+    return attr;
+  };
+
+const createAttributes = (attributes: Record<string, string | null>) => {
+  const attr: Record<string, { default: string | null }> = {};
+  for (const [key, value] of Object.entries(attributes)) {
+    attr[key] = { default: value };
+  }
+  return attr;
+};
+
 export function createEditorSchema() {
   return new Schema({
     nodes: {
       note: {
-        group: "block",
-        content: "text*",
-        attrs: {
-          id: {
-            default: null,
-          },
-          note: {
-            default: "note",
-          },
-        },
+        content: "(note_title|note_children)?",
+        // content: "note_title? note_children?",
+        attrs: createAttributes({ id: null, note: "note", parent: null }),
         parseDOM: [
           {
             tag: "li[data-note]",
-            getAttrs: (dom) => ({
-              id: (dom as HTMLElement).getAttribute("data-id"),
-              note: (dom as HTMLElement).getAttribute("data-note"),
-            }),
+            getAttrs: createAttributeGetter(["id", "note"]),
           },
         ],
         toDOM(node) {
           const { id, note } = node.attrs;
           return ["li", { "data-id": id, "data-note": note }, 0];
+        },
+      },
+      note_title: {
+        content: "text*",
+        parseDOM: [{ tag: "p" }],
+        toDOM() {
+          return ["p", 0];
+        },
+      },
+      note_children: {
+        content: "note+",
+        parseDOM: [{ tag: "ul" }],
+        toDOM() {
+          return ["ul", 0];
         },
       },
       text: {},

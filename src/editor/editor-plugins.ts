@@ -2,8 +2,8 @@ import { createEditorKeymap } from "./editor-keymap";
 import { history } from "prosemirror-history";
 import { Emitter } from "mitt";
 import { EditorState, Plugin, Transaction } from "prosemirror-state";
-import { Node, NodeType } from "prosemirror-model";
 import { nanoid } from "nanoid";
+import { isTargetNodeOfType, nodeHasAttribute } from "./editor-utils";
 
 export type Events = {
   update: {
@@ -26,10 +26,6 @@ function createUpdateEmitter(emitter: Emitter<Events>) {
 }
 
 function createAddNoteIdPlugin() {
-  const isTargetNodeOfType = (node: Node, type: NodeType) => node.type === type;
-  const nodeHasAttribute = (node: Node, attrName: string) =>
-    Boolean(node.attrs && node.attrs[attrName]);
-
   return new Plugin({
     appendTransaction: (transactions, _prevState, nextState) => {
       const tr = nextState.tr;
