@@ -23,7 +23,7 @@ export function createEditorSchema() {
   return new Schema({
     nodes: {
       note: {
-        content: "(note_title|note_children)?",
+        content: "(note_text|note_children)?",
         // content: "note_title? note_children?",
         attrs: createAttributes({ id: null, note: "note", parent: null }),
         parseDOM: [
@@ -37,7 +37,7 @@ export function createEditorSchema() {
           return ["li", { "data-id": id, "data-note": note }, 0];
         },
       },
-      note_title: {
+      note_text: {
         content: "text*",
         parseDOM: [{ tag: "p" }],
         toDOM() {
