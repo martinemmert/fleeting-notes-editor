@@ -31,7 +31,7 @@ function createAddNoteIdPlugin() {
       const tr = nextState.tr;
       let modified = false;
 
-      if (transactions.some((transaction) => transaction.docChanged)) {
+      if (transactions.some((tr) => tr.docChanged || tr.getMeta("__init__"))) {
         nextState.doc.descendants((node, pos) => {
           const { note } = nextState.schema.nodes;
           if (isTargetNodeOfType(node, note) && !nodeHasAttribute(node, "id")) {

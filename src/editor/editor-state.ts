@@ -15,9 +15,11 @@ export function createEditorState(
     initialDoc = Node.fromJSON(schema, doc);
   }
 
-  return EditorState.create({
+  const state = EditorState.create({
     doc: initialDoc as Node,
     plugins: createEditorPluginsArray(eventEmitter),
     schema,
   });
+
+  return state.apply(state.tr.setMeta("__init__", true));
 }
