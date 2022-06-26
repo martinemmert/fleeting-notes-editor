@@ -15,18 +15,20 @@ function defaultBlockAt(match: ContentMatch) {
   return null;
 }
 
-export const splitNoteTitle: Command = (state, dispatch) => {
+export const splitNote: Command = (state, dispatch) => {
   const { $from } = state.selection;
+  const noteType = state.schema.nodes.note;
 
-  if (isTargetNodeOfType($from.parent, state.schema.nodes.note)) return false;
+  if (isTargetNodeOfType($from.parent, noteType)) return false;
   if (!canSplit(state.doc, $from.pos, $from.depth)) return false;
 
   if (dispatch) {
     const tr = state.tr;
     if (state.selection instanceof TextSelection) tr.deleteSelection();
     if (state.selection instanceof AllSelection) tr.deleteSelection();
-    tr.split($from.pos, 2);
-    dispatch(tr.scrollIntoView());
+    tr.split($from.pos, 2, [{ type: noteType, attrs: { id: null } }]);
+    tr.scrollIntoView();
+    dispatch(tr);
   }
 
   return true;

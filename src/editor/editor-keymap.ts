@@ -19,7 +19,7 @@ import {
 import {
   joinNoteBackward,
   joinNoteForward,
-  splitNoteTitle,
+  splitNote,
 } from "./editor-commands";
 import { Command } from "prosemirror-state";
 
@@ -48,11 +48,11 @@ let del = chainCommands(
 /// * **Mod-a** to `selectAll`
 export const pcBaseKeymap: { [key: string]: Command } = {
   Enter: chainCommands(
-    newlineInCode,
-    createParagraphNear,
-    liftEmptyBlock,
-    splitBlock,
-    splitNoteTitle
+    // newlineInCode,
+    // createParagraphNear,
+    // liftEmptyBlock,
+    // splitBlock,
+    splitNote
   ),
   "Mod-Enter": exitCode,
   Backspace: backspace,
@@ -102,7 +102,7 @@ export function createEditorKeymap() {
     Backspace: chainCommands(joinNoteBackward, baseKeymap.Backspace),
     "Mod-Backspace": chainCommands(joinNoteBackward, baseKeymap.Backspace),
     "Shift-Backspace": chainCommands(joinNoteBackward, baseKeymap.Backspace),
-    Enter: chainCommands(splitNoteTitle, baseKeymap.Enter),
+    Enter: chainCommands(splitNote, baseKeymap.Enter),
     // Tab: transformIntoBranchNote,
   });
 }
