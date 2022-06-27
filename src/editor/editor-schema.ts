@@ -23,7 +23,7 @@ export function createEditorSchema() {
   return new Schema({
     nodes: {
       note: {
-        content: "note_text",
+        content: "note_text note_children?",
         attrs: createAttributes({ id: null, note: "note", parent: null }),
         parseDOM: [
           {
