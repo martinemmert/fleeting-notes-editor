@@ -19,6 +19,7 @@ import {
 import {
   joinNoteBackward,
   joinNoteForward,
+  sinkNote,
   splitNote,
 } from "./editor-commands";
 import { Command } from "prosemirror-state";
@@ -103,6 +104,6 @@ export function createEditorKeymap() {
     "Mod-Backspace": chainCommands(joinNoteBackward, baseKeymap.Backspace),
     "Shift-Backspace": chainCommands(joinNoteBackward, baseKeymap.Backspace),
     Enter: chainCommands(splitNote, baseKeymap.Enter),
-    // Tab: transformIntoBranchNote,
+    Tab: sinkNote,
   });
 }
