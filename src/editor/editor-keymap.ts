@@ -2,23 +2,20 @@ import { keymap } from "prosemirror-keymap";
 import { redo, undo } from "prosemirror-history";
 import {
   chainCommands,
-  createParagraphNear,
   deleteSelection,
   exitCode,
   joinBackward,
   joinForward,
-  liftEmptyBlock,
-  newlineInCode,
   selectAll,
   selectNodeBackward,
   selectNodeForward,
   selectTextblockEnd,
   selectTextblockStart,
-  splitBlock,
 } from "prosemirror-commands";
 import {
   joinNoteBackward,
   joinNoteForward,
+  liftNote,
   sinkNote,
   splitNote,
 } from "./editor-commands";
@@ -105,5 +102,6 @@ export function createEditorKeymap() {
     "Shift-Backspace": chainCommands(joinNoteBackward, baseKeymap.Backspace),
     Enter: chainCommands(splitNote, baseKeymap.Enter),
     Tab: sinkNote,
+    "Shift-Tab": liftNote,
   });
 }
