@@ -1,19 +1,12 @@
 import { AllSelection, Command, TextSelection } from "prosemirror-state";
-import { ContentMatch, Fragment, ResolvedPos, Slice } from "prosemirror-model";
-import { isTargetNodeOfType } from "./editor-utils";
-import { canSplit, ReplaceAroundStep } from "prosemirror-transform";
-
-function atEnd($position: ResolvedPos) {
-  return $position.parentOffset == $position.parent.content.size;
-}
-
-function defaultBlockAt(match: ContentMatch) {
-  for (let i = 0; i < match.edgeCount; i++) {
-    let { type } = match.edge(i);
-    if (type.isTextblock && !type.hasRequiredAttrs()) return type;
-  }
-  return null;
-}
+import { Fragment, NodeRange, Slice } from "prosemirror-model";
+import { isTargetNodeOfType, mapChildren } from "./editor-utils";
+import {
+  canSplit,
+  liftTarget,
+  ReplaceAroundStep,
+  ReplaceStep,
+} from "prosemirror-transform";
 
 export const splitNote: Command = (state, dispatch) => {
   const { $from } = state.selection;
@@ -70,6 +63,71 @@ export const sinkNote: Command = (state, dispatch) => {
     );
 
     dispatch(tr.step(step).scrollIntoView());
+  }
+
+  return true;
+};
+
+export const liftNote: Command = (state, dispatch) => {
+  const { $from, $to } = state.selection;
+
+  const noteTextType = state.schema.nodes.note_text;
+
+  // prevent usage in wrong nodes
+  if (!isTargetNodeOfType($from.parent, noteTextType)) return false;
+
+  const $start = state.doc.resolve($from.before($from.depth - 1));
+  const $end = state.doc.resolve($to.after($from.depth - 1));
+  const range = new NodeRange($start, $end, $start.depth);
+
+  // prevent usage on the most outer level
+  if (isTargetNodeOfType($start.parent, state.schema.nodes.doc)) return true;
+
+  const target = liftTarget(range);
+  if (typeof target !== "number") return false;
+
+  if (dispatch) {
+    const tr = state.tr;
+
+    // move the item to the end of the current list
+    let swapSize = 0;
+    const children = mapChildren($start.parent);
+    const currentChildIndex = children.indexOf($start.nodeAfter!);
+    // remove the current children from the list
+    children.splice(currentChildIndex, 1);
+    // get the swap size
+    children.forEach((child, index) => {
+      if (index >= currentChildIndex) swapSize += child.nodeSize;
+    });
+    // add the current children to the end of the list
+    children.push($start.nodeAfter!);
+    // create the replacement slice
+    const slice = new Slice(Fragment.fromArray(children), 0, 0);
+    // todo: https://github.com/martinemmert/fleeting-notes-editor/issues/7
+    //       constrain this to the actual replaced nodes
+    const step = new ReplaceStep(
+      $start.start($start.depth),
+      $end.end($end.depth),
+      slice
+    );
+    // apply the swap
+    tr.step(step);
+    // get lift range
+    const liftRange = new NodeRange(
+      tr.doc.resolve(range.start + swapSize),
+      tr.doc.resolve(range.end + swapSize),
+      range.depth
+    );
+    tr.setSelection(
+      new TextSelection(
+        tr.doc.resolve($from.pos + swapSize),
+        tr.doc.resolve($to.pos + swapSize)
+      )
+    );
+    tr.lift(liftRange, liftTarget(liftRange)!);
+    tr.scrollIntoView();
+
+    dispatch(tr);
   }
 
   return true;
