@@ -13,7 +13,7 @@ export const splitNote: Command = (state, dispatch) => {
   const noteType = state.schema.nodes.note;
 
   if (isTargetNodeOfType($from.parent, noteType)) return false;
-  if (!canSplit(state.doc, $from.pos, $from.depth)) return false;
+  if (!canSplit(state.doc, $from.pos, 2)) return false;
 
   if (dispatch) {
     const tr = state.tr;
