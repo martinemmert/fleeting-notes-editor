@@ -1,4 +1,4 @@
-import { Node, NodeType } from "prosemirror-model";
+import { Node, NodeType, ResolvedPos } from "prosemirror-model";
 
 export const isTargetNodeOfType = (
   node: Node | null | undefined,
@@ -21,3 +21,7 @@ export const mapChildren = (
   }
   return arr;
 };
+
+export function positionAtEnd($position: ResolvedPos) {
+  return $position.parentOffset === $position.parent.textContent.length;
+}
