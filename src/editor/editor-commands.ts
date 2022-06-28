@@ -232,11 +232,20 @@ export const joinNoteForward: Command = (state, dispatch) => {
   // get the end position of the current note
   const $noteEnd = state.doc.resolve($cursor.after($cursor.depth - 1));
 
-  // prevent joining when current note is the last one on the current level
+  // prevent joining when the current note is the last one on the current level
   if ($noteEnd.nodeAfter === null) return false;
 
-  // dispatch the join transformation
+  // check if current note is flat
+  const isNoteFlat = isTargetNodeOfType(
+    $noteEnd.nodeBefore?.lastChild,
+    schemaNodes.note_children
+  );
+
+  // prevent joining when the current note is not flat
+  if (isNoteFlat) return false;
+
   if (dispatch) {
+    // dispatch the join transformation
     const tr = state.tr.join($noteEnd.pos, 2);
     tr.scrollIntoView();
     dispatch(tr);
