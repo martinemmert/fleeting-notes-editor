@@ -240,7 +240,11 @@ export const joinNoteForward: Command = (state, dispatch) => {
   if ($noteEnd.nodeAfter === null) return false;
 
   // dispatch the join transformation
-  if (dispatch) dispatch(state.tr.join($noteEnd.pos, 2));
+  if (dispatch) {
+    const tr = state.tr.join($noteEnd.pos, 2);
+    tr.scrollIntoView();
+    dispatch(tr);
+  }
 
   return true;
 };
