@@ -4,11 +4,7 @@ import {
   chainCommands,
   deleteSelection,
   exitCode,
-  joinBackward,
-  joinForward,
   selectAll,
-  selectNodeBackward,
-  selectNodeForward,
   selectTextblockEnd,
   selectTextblockStart,
 } from "prosemirror-commands";
@@ -23,15 +19,17 @@ import { Command } from "prosemirror-state";
 
 let backspace = chainCommands(
   deleteSelection,
-  joinNoteBackward,
-  joinBackward,
-  selectNodeBackward
+  joinNoteBackward
+  // todo: activate them when normal text editing is needed
+  // joinBackward,
+  // selectNodeBackward
 );
 let del = chainCommands(
   deleteSelection,
-  joinNoteForward,
-  joinForward,
-  selectNodeForward
+  joinNoteForward
+  // todo: activate them when normal text editing is needed
+  // joinForward,
+  // selectNodeForward
 );
 
 /// A basic keymap containing bindings not specific to any schema.
@@ -97,10 +95,6 @@ export function createEditorKeymap() {
     ...baseKeymap,
     "Mod-z": undo,
     "Mod-y": redo,
-    Backspace: chainCommands(joinNoteBackward, baseKeymap.Backspace),
-    "Mod-Backspace": chainCommands(joinNoteBackward, baseKeymap.Backspace),
-    "Shift-Backspace": chainCommands(joinNoteBackward, baseKeymap.Backspace),
-    Enter: chainCommands(splitNote, baseKeymap.Enter),
     Tab: sinkNote,
     "Shift-Tab": liftNote,
   });

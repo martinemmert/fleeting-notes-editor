@@ -1,11 +1,6 @@
-import {
-  AllSelection,
-  Command,
-  Selection,
-  TextSelection,
-} from "prosemirror-state";
+import { AllSelection, Command, TextSelection } from "prosemirror-state";
 import { Fragment, NodeRange, Slice } from "prosemirror-model";
-import { isTargetNodeOfType, mapChildren } from "./editor-utils";
+import { isTargetNodeOfType, mapChildren, positionAtEnd } from "./editor-utils";
 import {
   canSplit,
   liftTarget,
@@ -229,5 +224,23 @@ export const joinNoteBackward: Command = (state, dispatch) => {
 };
 
 export const joinNoteForward: Command = (state, dispatch) => {
-  return false;
+  const schemaNodes = state.schema.nodes;
+  const { $cursor } = state.selection as TextSelection;
+
+  // cancel if no cursor is available or if it is not at the beginning of the note
+  if (!$cursor || !positionAtEnd($cursor)) return false;
+
+  // allow usage only in a note_text node
+  if (!isTargetNodeOfType($cursor.parent, schemaNodes.note_text)) return false;
+
+  // get the end position of the current note
+  const $noteEnd = state.doc.resolve($cursor.after($cursor.depth - 1));
+
+  // prevent joining when current note is the last one on the current level
+  if ($noteEnd.nodeAfter === null) return false;
+
+  // dispatch the join transformation
+  if (dispatch) dispatch(state.tr.join($noteEnd.pos, 2));
+
+  return true;
 };
