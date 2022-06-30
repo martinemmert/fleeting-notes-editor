@@ -1,12 +1,13 @@
 import { Node } from "prosemirror-model";
-import { EditorState } from "prosemirror-state";
+import { EditorState, EditorStateConfig } from "prosemirror-state";
 import { createEditorPluginsArray, Events } from "./editor-plugins";
 import { createEditorSchema } from "./editor-schema";
 import { Emitter } from "mitt";
 
 export function createEditorState(
   doc?: Node | {},
-  eventEmitter?: Emitter<Events>
+  eventEmitter?: Emitter<Events>,
+  config?: Omit<EditorStateConfig, "doc" | "schema"> | {}
 ) {
   const schema = createEditorSchema();
   let initialDoc = doc;
@@ -19,6 +20,7 @@ export function createEditorState(
     doc: initialDoc as Node,
     plugins: createEditorPluginsArray(eventEmitter),
     schema,
+    ...config,
   });
 
   return state.apply(state.tr.setMeta("__init__", true));
