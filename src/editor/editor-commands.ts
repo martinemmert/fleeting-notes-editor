@@ -253,3 +253,126 @@ export const joinNoteForward: Command = (state, dispatch) => {
 
   return true;
 };
+
+export const moveNoteUp: Command = (state, dispatch) => {
+  const schemaNodes = state.schema.nodes;
+  const { $cursor } = state.selection as TextSelection;
+
+  // cancel if no cursor is available or if it is not at the beginning of the note
+  if (!$cursor) return false;
+
+  // allow usage only in a note_text node
+  if (!isTargetNodeOfType($cursor.parent, schemaNodes.note_text)) return false;
+
+  // get the end position of the current note
+  const $start = state.doc.resolve($cursor.before($cursor.depth - 1));
+
+  // prevent joining when the current note is the last one on the current level
+  if ($start.nodeBefore === null) return false;
+
+  if (dispatch) {
+    const tr = state.tr;
+    // move the item to the end of the current list
+
+    const children = mapChildren($start.parent);
+    const childIndex = children.indexOf($start.nodeAfter!);
+    const prevChildIndex = childIndex - 1;
+    const swappedChildren = [children[childIndex], children[prevChildIndex]];
+
+    let swapSize = 0;
+    let sizeBeforeSwap = 0;
+
+    children.forEach((child, index) => {
+      if (index < prevChildIndex) sizeBeforeSwap += child.nodeSize;
+    });
+
+    swappedChildren.forEach((child) => (swapSize += child.nodeSize));
+
+    const replaceStart = $cursor.start($cursor.depth - 2) + sizeBeforeSwap;
+    const replaceEnd = replaceStart + swapSize;
+
+    // create the replacement slice
+    const slice = new Slice(Fragment.fromArray(swappedChildren), 0, 0);
+
+    // create the replacement step
+    const step = new ReplaceStep(replaceStart, replaceEnd, slice);
+
+    // apply the swap
+    tr.step(step);
+
+    // new cursor position
+    const $newCursor = tr.doc.resolve(
+      $cursor.pos - swappedChildren[1].nodeSize
+    );
+
+    tr.setSelection(new TextSelection($newCursor));
+
+    tr.scrollIntoView();
+
+    dispatch(tr);
+  }
+
+  return true;
+};
+
+export const moveNoteDown: Command = (state, dispatch) => {
+  const schemaNodes = state.schema.nodes;
+  const { $cursor } = state.selection as TextSelection;
+
+  // cancel if no cursor is available or if it is not at the beginning of the note
+  if (!$cursor) return false;
+
+  // allow usage only in a note_text node
+  if (!isTargetNodeOfType($cursor.parent, schemaNodes.note_text)) return false;
+
+  // get the end position of the current note
+  const $start = state.doc.resolve($cursor.before($cursor.depth - 1));
+  const $end = state.doc.resolve($cursor.after($cursor.depth - 1));
+
+  // prevent joining when the current note is the last one on the current level
+  if ($end.nodeAfter === null) return false;
+
+  if (dispatch) {
+    const tr = state.tr;
+    // move the item to the end of the current list
+
+    const children = mapChildren($start.parent);
+    const childIndex = children.indexOf($start.nodeAfter!);
+    const nextChildIndex = childIndex + 1;
+    const swappedChildren = [children[nextChildIndex], children[childIndex]];
+
+    let swapSize = 0;
+    let sizeBeforeSwap = 0;
+
+    children.forEach((child, index) => {
+      if (index < childIndex) sizeBeforeSwap += child.nodeSize;
+    });
+
+    swappedChildren.forEach((child) => (swapSize += child.nodeSize));
+
+    const replaceStart = $cursor.start($cursor.depth - 2) + sizeBeforeSwap;
+    const replaceEnd = replaceStart + swapSize;
+
+    // create the replacement slice
+    const slice = new Slice(Fragment.fromArray(swappedChildren), 0, 0);
+
+    // create the replacement step
+    const step = new ReplaceStep(replaceStart, replaceEnd, slice);
+
+    // apply the swap
+    tr.step(step);
+
+    // new cursor position
+    const $newCursor = tr.doc.resolve(
+      $cursor.pos + swappedChildren[0].nodeSize
+    );
+
+    tr.setSelection(new TextSelection($newCursor));
+
+    tr.scrollIntoView();
+
+    dispatch(tr);
+  }
+
+  return true;
+};
