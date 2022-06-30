@@ -8,7 +8,7 @@ export function getNextMockedId() {
   return `mock-id-${currentId + 1}`;
 }
 
-export function createMockIdString(id: number) {
+export function id(id: number) {
   return `mock-id-${id}`;
 }
 

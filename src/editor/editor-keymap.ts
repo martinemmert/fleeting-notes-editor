@@ -12,6 +12,8 @@ import {
   joinNoteBackward,
   joinNoteForward,
   liftNote,
+  moveNoteDown,
+  moveNoteUp,
   sinkNote,
   splitNote,
 } from "./editor-commands";
@@ -57,6 +59,8 @@ export const pcBaseKeymap: { [key: string]: Command } = {
   Delete: del,
   "Mod-Delete": del,
   "Mod-a": selectAll,
+  "Mod-Shift-ArrowUp": moveNoteUp,
+  "Mod-Shift-ArrowDown": moveNoteDown,
 };
 
 /// A copy of `pcBaseKeymap` that also binds **Ctrl-h** like Backspace,

@@ -10,11 +10,7 @@ import {
 import { expect } from "vitest";
 import { createEditorState } from "../src/editor/editor-state";
 
-export {
-  getNextMockedId,
-  createMockIdString,
-  resetIdCounter,
-} from "../__mocks__/nanoid";
+export { getNextMockedId, id, resetIdCounter } from "../__mocks__/nanoid";
 
 const schema = createEditorSchema();
 const { note, note_text, note_children, text, doc } = builders(schema) as {
@@ -40,7 +36,12 @@ export function getSelection(doc: Node) {
   return Selection.atStart(doc);
 }
 
-export function applyCommand(doc: Node, command: Command, result: Node) {
+export function applyCommand(
+  doc: Node,
+  command: Command,
+  result: Node,
+  debug = false
+) {
   let state = createEditorState(doc, undefined, {
     selection: getSelection(doc),
   });
@@ -49,15 +50,28 @@ export function applyCommand(doc: Node, command: Command, result: Node) {
 
   const isEqual = eq(result, state.doc);
 
-  if (!isEqual) {
+  if (!isEqual && debug) {
     console.log(
       JSON.stringify(result.toJSON(), undefined, " "),
       JSON.stringify(state.doc.toJSON(), undefined, " ")
     );
   }
+
+  // test if the current document is equal to the expected document
   expect(isEqual).toBe(true);
 
   if (result && (result as any).tag.a != null) {
-    expect(eq(state.selection, getSelection(result))).toBe(true);
+    const expectedSelection = getSelection(result);
+    const isEqualSelection = eq(state.selection, expectedSelection);
+
+    if (!isEqualSelection && debug) {
+      console.log(
+        JSON.stringify(state.selection.toJSON(), undefined, " "),
+        JSON.stringify(expectedSelection.toJSON(), undefined, " ")
+      );
+    }
+
+    // test if the current selection is equal to the expected selection
+    expect(isEqualSelection).toBe(true);
   }
 }
