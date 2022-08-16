@@ -19,7 +19,15 @@ export const splitNote: Command = (state, dispatch) => {
     const tr = state.tr;
     if (state.selection instanceof TextSelection) tr.deleteSelection();
     if (state.selection instanceof AllSelection) tr.deleteSelection();
-    tr.split($from.pos, 2, [{ type: noteType, attrs: { id: null } }]);
+
+    // insert a new node before the selection is at the start of the note
+    if (state.selection.$from.textOffset === 0) {
+      tr.split($from.pos, 2);
+      tr.setNodeMarkup($from.pos - 2, undefined, { id: null });
+    } else {
+      tr.split($from.pos, 2, [{ type: noteType, attrs: { id: null } }]);
+    }
+
     tr.scrollIntoView();
     dispatch(tr);
   }

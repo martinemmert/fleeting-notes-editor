@@ -21,6 +21,7 @@ import {
   moveNoteUp,
   splitNote,
 } from "../src/editor/editor-commands";
+import { nanoid } from "nanoid";
 
 beforeAll(() => {
   vi.mock("nanoid");
@@ -52,6 +53,15 @@ describe("commands", () => {
         note({ id: id(2) }, note_text("world"))
       );
       applyCommand(testDoc, splitNote, expectedDoc);
+    });
+
+    it("should insert a new sibling note before the current note if the cursor is at the start of the current note", () => {
+      const testDoc = doc(note({ id: nanoid() }, note_text("<a>hello world")));
+      const expectedDoc = doc(
+        note({ id: id(2) }, note_text("")),
+        note({ id: id(1) }, note_text("<a>hello world"))
+      );
+      applyCommand(testDoc, splitNote, expectedDoc, false);
     });
   });
 
