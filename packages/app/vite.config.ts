@@ -1,8 +1,8 @@
 /// <reference types="vitest" />
 /// <reference types="vite/client" />
 
-import { defineConfig } from 'vite';
-import solidPlugin from 'vite-plugin-solid';
+import { defineConfig } from "vite";
+import solidPlugin from "vite-plugin-solid";
 
 export default defineConfig({
   plugins: [solidPlugin()],
@@ -10,21 +10,21 @@ export default defineConfig({
     port: 3000,
   },
   test: {
-    environment: 'jsdom',
+    environment: "jsdom",
     globals: true,
     transformMode: {
       web: [/\.[jt]sx?$/],
     },
-    setupFiles: './setupVitest.ts',
+    setupFiles: "./vitest.setup.ts",
     // if you have few tests, try commenting one
     // or both out to improve performance:
     threads: false,
     isolate: false,
   },
   build: {
-    target: 'esnext',
+    target: "esnext",
   },
   resolve: {
-    conditions: ['development', 'browser'],
+    conditions: ["development", "browser"],
   },
 });
