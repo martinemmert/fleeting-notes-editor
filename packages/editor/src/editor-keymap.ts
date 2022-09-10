@@ -84,7 +84,8 @@ const mac =
     ? /Mac|iP(hone|[oa]d)/.test(navigator.platform)
     : // @ts-ignore
     typeof os != "undefined" && os.platform
-    ? os.platform() == "darwin"
+    ? // @ts-ignore
+      os.platform() == "darwin"
     : false;
 
 /// Depending on the detected platform, this will hold

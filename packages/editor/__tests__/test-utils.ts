@@ -1,6 +1,6 @@
 import { Node } from "prosemirror-model";
 import { builders, eq, NodeBuilder } from "prosemirror-test-builder";
-import { createEditorSchema } from "../src/editor/editor-schema";
+import { createEditorSchema } from "../src/editor-schema";
 import {
   Command,
   NodeSelection,
@@ -8,7 +8,7 @@ import {
   TextSelection,
 } from "prosemirror-state";
 import { expect } from "vitest";
-import { createEditorState } from "../src/editor/editor-state";
+import { createEditorState } from "../src/editor-state";
 
 export { getNextMockedId, id, resetIdCounter } from "../__mocks__/nanoid";
 

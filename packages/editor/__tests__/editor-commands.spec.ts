@@ -16,11 +16,7 @@ import {
   resetIdCounter,
   note_children,
 } from "./test-utils";
-import {
-  moveNoteDown,
-  moveNoteUp,
-  splitNote,
-} from "../src/editor/editor-commands";
+import { moveNoteDown, moveNoteUp, splitNote } from "../src/editor-commands";
 import { nanoid } from "nanoid";
 
 beforeAll(() => {
