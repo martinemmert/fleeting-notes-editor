@@ -1,5 +1,4 @@
 import { render } from "solid-js/web";
+import { MainView } from "./main-view";
 
-import { TodoList } from "./todo-list";
-
-render(() => <TodoList />, document.getElementById("root") as HTMLElement);
+render(() => <MainView />, document.getElementById("root") as HTMLElement);
