@@ -1,11 +1,12 @@
+/*noinspection CssUnknownTarget*/
 @import url("https://use.typekit.net/oep3jfg.css");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-
 @layer components {
+
     .editor {
         @apply py-6;
         @apply rounded-lg;
@@ -19,33 +20,18 @@
 
         li {
             @apply relative;
-            @apply mx-7;
+            @apply ml-9 mr-8;
             @apply leading-relaxed;
             @apply list-none;
 
 
             &:not(:has(> p  > br.ProseMirror-trailingBreak)) {
 
-                &:before {
-                    @apply absolute -left-7 ml-px top-0 bottom-0;
-                    @apply block w-1;
-                    @apply bg-sky-400;
-                    content: "";
-                }
-
-                &:first-child {
-                    &:before {
-                        @apply rounded-t-full;
-                        @apply top-2;
-                    }
-                }
+                @apply list-disc;
 
                 &:last-child,
                 &:has(+ li > p  > br.ProseMirror-trailingBreak) {
-                    &:before {
-                        @apply rounded-b-full;
-                        @apply bottom-2;
-                    }
+                    @apply list-disc;
                 }
             }
         }
