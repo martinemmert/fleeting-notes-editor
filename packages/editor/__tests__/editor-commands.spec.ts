@@ -1,12 +1,4 @@
-import {
-  afterAll,
-  beforeAll,
-  beforeEach,
-  describe,
-  expect,
-  it,
-  vi,
-} from "vitest";
+import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   applyCommand,
   id,
@@ -58,6 +50,51 @@ describe("commands", () => {
         note({ id: id(1) }, note_text("<a>hello world"))
       );
       applyCommand(testDoc, splitNote, expectedDoc, false);
+    });
+
+    it("should move the caret one level up when enter is pressed in an empty node that follows an already empty node", () => {
+      const testDoc = doc(
+        note(
+          note_text("Headline"),
+          note_children(
+            note(
+              note_text("Hello World") //
+            ),
+            note(
+              note_text("Hello World") //
+            ),
+            note(
+              note_text("") //
+            ),
+            note(
+              note_text("<a>") //
+            )
+          )
+        )
+      );
+      const expectedDoc = doc(
+        note(
+          note_text("Headline"),
+          note_children(
+            note(
+              note_text("Hello World") //
+            ),
+            note(
+              note_text("Hello World") //
+            ),
+            note(
+              note_text("") //
+            )
+          )
+        ),
+        note(
+          note_text("<a>") //
+        )
+      );
+
+      const command = vi.fn(splitNote);
+
+      applyCommand(testDoc, command, expectedDoc, true);
     });
   });
 

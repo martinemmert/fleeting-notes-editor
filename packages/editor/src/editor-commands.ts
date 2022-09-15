@@ -1,12 +1,7 @@
 import { AllSelection, Command, TextSelection } from "prosemirror-state";
 import { Fragment, NodeRange, Slice } from "prosemirror-model";
 import { isTargetNodeOfType, mapChildren, positionAtEnd } from "./editor-utils";
-import {
-  canSplit,
-  liftTarget,
-  ReplaceAroundStep,
-  ReplaceStep,
-} from "prosemirror-transform";
+import { canSplit, liftTarget, ReplaceAroundStep, ReplaceStep } from "prosemirror-transform";
 
 export const splitNote: Command = (state, dispatch) => {
   const { $from } = state.selection;
@@ -19,6 +14,41 @@ export const splitNote: Command = (state, dispatch) => {
     const tr = state.tr;
     if (state.selection instanceof TextSelection) tr.deleteSelection();
     if (state.selection instanceof AllSelection) tr.deleteSelection();
+
+    // lift the note instead of splitting it, if it is empty and its previous sibling is also empty
+    // yes, we can use labels in JS, and they are great!
+    shouldLiftInsteadOfSplit: {
+      // --
+      // only do this if we have a cursor selection
+      // --
+      // @ts-ignore $cursor is missing in the types
+      if (!state.selection.$cursor) break shouldLiftInsteadOfSplit;
+      //
+      // depth must be greater than 2
+      if (state.selection.$from.depth < 4) break shouldLiftInsteadOfSplit;
+      //
+      // get the wrapping note_children node
+      const wrappingNoteChildren = state.selection.$from.node(-2);
+      //
+      // child count must be greater than 2
+      const childCount = wrappingNoteChildren.childCount;
+      if (childCount <= 2) break shouldLiftInsteadOfSplit;
+      //
+      // current note must be empty
+      const isCurrentNoteEmpty = state.selection.$from.parent.textContent.trim() === "";
+      if (!isCurrentNoteEmpty) break shouldLiftInsteadOfSplit;
+      //
+      // current note must be the last child
+      const isLastChild = wrappingNoteChildren.lastChild === state.selection.$from.node(-1);
+      if (!isLastChild) break shouldLiftInsteadOfSplit;
+      //
+      // previous sibling note must be empty
+      const index = Math.max(0, state.selection.$from.index(-2) - 1);
+      const isPrevSiblingNoteEmpty = wrappingNoteChildren.child(index).textContent.trim() === "";
+      if (!isPrevSiblingNoteEmpty) break shouldLiftInsteadOfSplit;
+
+      return liftNote(state, dispatch);
+    }
 
     // insert a new node before the selection is at the start of the note
     if (state.selection.$from.parentOffset === 0) {
@@ -92,7 +122,7 @@ export const liftNote: Command = (state, dispatch) => {
   if (isTargetNodeOfType($start.parent, state.schema.nodes.doc)) return true;
 
   const target = liftTarget(range);
-  if (typeof target !== "number") return false;
+  if (target === null) return false;
 
   if (dispatch) {
     const tr = state.tr;
@@ -113,11 +143,7 @@ export const liftNote: Command = (state, dispatch) => {
     const slice = new Slice(Fragment.fromArray(children), 0, 0);
     // todo: https://github.com/martinemmert/fleeting-notes-editor/issues/7
     //       constrain this to the actual replaced nodes
-    const step = new ReplaceStep(
-      $start.start($start.depth),
-      $end.end($end.depth),
-      slice
-    );
+    const step = new ReplaceStep($start.start($start.depth), $end.end($end.depth), slice);
     // apply the swap
     tr.step(step);
     // get lift range
@@ -127,10 +153,7 @@ export const liftNote: Command = (state, dispatch) => {
       range.depth
     );
     tr.setSelection(
-      new TextSelection(
-        tr.doc.resolve($from.pos + swapSize),
-        tr.doc.resolve($to.pos + swapSize)
-      )
+      new TextSelection(tr.doc.resolve($from.pos + swapSize), tr.doc.resolve($to.pos + swapSize))
     );
     tr.lift(liftRange, liftTarget(liftRange)!);
     tr.scrollIntoView();
@@ -170,21 +193,16 @@ export const joinNoteBackward: Command = (state, dispatch) => {
 
   // check if note is empty
   const isEmptyNote =
-    $start.nodeAfter?.textContent.trim() === "" &&
-    $start.nodeAfter.childCount <= 1;
+    $start.nodeAfter?.textContent.trim() === "" && $start.nodeAfter.childCount <= 1;
 
   // check if previous note is a flat note (no children)
   // note: does not guaranty that a previous note exists
-  const isPreviousNoteFlat = isTargetNodeOfType(
-    $start.nodeBefore?.lastChild,
-    noteTextNode
-  );
+  const isPreviousNoteFlat = isTargetNodeOfType($start.nodeBefore?.lastChild, noteTextNode);
 
   // check if previous note is empty
   // note: does not guaranty that a previous note exists
   const isPreviousNoteEmpty =
-    $start.nodeBefore?.textContent?.trim() === "" &&
-    $start.nodeBefore.childCount <= 1;
+    $start.nodeBefore?.textContent?.trim() === "" && $start.nodeBefore.childCount <= 1;
 
   const tr = state.tr;
 
@@ -244,10 +262,7 @@ export const joinNoteForward: Command = (state, dispatch) => {
   if ($noteEnd.nodeAfter === null) return false;
 
   // check if current note is flat
-  const isNoteFlat = isTargetNodeOfType(
-    $noteEnd.nodeBefore?.lastChild,
-    schemaNodes.note_children
-  );
+  const isNoteFlat = isTargetNodeOfType($noteEnd.nodeBefore?.lastChild, schemaNodes.note_children);
 
   // prevent joining when the current note is not flat
   if (isNoteFlat) return false;
@@ -309,9 +324,7 @@ export const moveNoteUp: Command = (state, dispatch) => {
     tr.step(step);
 
     // new cursor position
-    const $newCursor = tr.doc.resolve(
-      $cursor.pos - swappedChildren[1].nodeSize
-    );
+    const $newCursor = tr.doc.resolve($cursor.pos - swappedChildren[1].nodeSize);
 
     tr.setSelection(new TextSelection($newCursor));
 
@@ -371,9 +384,7 @@ export const moveNoteDown: Command = (state, dispatch) => {
     tr.step(step);
 
     // new cursor position
-    const $newCursor = tr.doc.resolve(
-      $cursor.pos + swappedChildren[0].nodeSize
-    );
+    const $newCursor = tr.doc.resolve($cursor.pos + swappedChildren[0].nodeSize);
 
     tr.setSelection(new TextSelection($newCursor));
 

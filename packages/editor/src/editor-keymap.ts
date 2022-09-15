@@ -91,9 +91,7 @@ const mac =
 /// Depending on the detected platform, this will hold
 /// [`pcBasekeymap`](#commands.pcBaseKeymap) or
 /// [`macBaseKeymap`](#commands.macBaseKeymap).
-export const baseKeymap: { [key: string]: Command } = mac
-  ? macBaseKeymap
-  : pcBaseKeymap;
+export const baseKeymap: { [key: string]: Command } = mac ? macBaseKeymap : pcBaseKeymap;
 
 export function createEditorKeymap() {
   return keymap({

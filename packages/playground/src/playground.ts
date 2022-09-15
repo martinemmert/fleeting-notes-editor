@@ -12,6 +12,6 @@ export function create(doc?: Node | {}) {
 
   const editor = createEditor(app, doc);
   void createJSONView(json, editor.emitter, editor.state);
-  applyDevTools(editor.view, { devToolsExpanded: false });
+  applyDevTools(editor.view, { devToolsExpanded: true });
   return editor;
 }
