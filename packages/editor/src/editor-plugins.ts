@@ -51,8 +51,55 @@ function createAddNoteIdPlugin() {
   });
 }
 
+function createAddParentNoteIdPlugin() {
+  return new Plugin({
+    appendTransaction: (transactions, _prevState, nextState) => {
+      const tr = nextState.tr;
+      let modified = false;
+      if (transactions.some((tr) => tr.docChanged)) {
+        const { note, note_children } = nextState.schema.nodes;
+        nextState.doc.descendants((node, pos, parent) => {
+          if (
+            isTargetNodeOfType(parent, note_children) && //
+            isTargetNodeOfType(node, note) && //
+            nodeHasAttribute(node, "id")
+          ) {
+            const wrappingNote = nextState.doc.resolve(pos).node(-1);
+            const { id } = wrappingNote.attrs;
+
+            tr.setNodeMarkup(pos, undefined, {
+              ...node.attrs,
+              parent: id,
+            });
+
+            modified = true;
+          } else if (
+            isTargetNodeOfType(node, note) && //
+            !isTargetNodeOfType(parent, note_children) && //
+            nodeHasAttribute(node, "parent")
+          ) {
+            tr.setNodeMarkup(pos, undefined, {
+              ...node.attrs,
+              parent: null,
+            });
+
+            modified = true;
+          }
+        });
+      }
+
+      return modified ? tr : null;
+    },
+  });
+}
+
 export function createEditorPluginsArray(emitter?: Emitter<Events>) {
-  const plugins = [createEditorKeymap(), createAddNoteIdPlugin(), history()];
+  const plugins = [
+    createEditorKeymap(),
+    createAddNoteIdPlugin(),
+    createAddParentNoteIdPlugin(),
+    history(),
+  ];
   if (emitter) plugins.push(createUpdateEmitter(emitter));
   return plugins;
 }
