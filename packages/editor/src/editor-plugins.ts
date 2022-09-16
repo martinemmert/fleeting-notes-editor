@@ -34,7 +34,11 @@ function createAddNoteIdPlugin() {
       if (transactions.some((tr) => tr.docChanged || tr.getMeta("__init__"))) {
         nextState.doc.descendants((node, pos) => {
           const { note } = nextState.schema.nodes;
-          if (isTargetNodeOfType(node, note) && !nodeHasAttribute(node, "id")) {
+          if (
+            isTargetNodeOfType(node, note) && //
+            !nodeHasAttribute(node, "id") &&
+            node.textContent.trim() !== ""
+          ) {
             const attrs = node.attrs;
             tr.setNodeMarkup(pos, undefined, { ...attrs, id: nanoid(16) });
             modified = true;
