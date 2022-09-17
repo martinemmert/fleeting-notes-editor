@@ -39,5 +39,11 @@
         ul.ProseMirror > li:before {
             display: none !important;
         }
+
+        mark {
+            @apply relative;
+            @apply bg-lime-200 rounded;
+            z-index: 0;
+        }
     }
 }

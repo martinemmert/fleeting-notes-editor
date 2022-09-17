@@ -4,6 +4,7 @@ import { Emitter } from "mitt";
 import { EditorState, Plugin, Transaction } from "prosemirror-state";
 import { nanoid } from "nanoid";
 import { isTargetNodeOfType, nodeHasAttribute } from "./editor-utils";
+import { Schema } from "prosemirror-model";
 
 export type Events = {
   update: {
@@ -93,9 +94,23 @@ function createAddParentNoteIdPlugin() {
   });
 }
 
-export function createEditorPluginsArray(emitter?: Emitter<Events>) {
+function preventBrowserShortcuts() {
+  return new Plugin({
+    props: {
+      handleKeyDown(_, event) {
+        if ((event.metaKey || event.ctrlKey) && event.key === "m") {
+          event.preventDefault();
+        }
+        return false;
+      },
+    },
+  });
+}
+
+export function createEditorPluginsArray(emitter?: Emitter<Events>, schema?: Schema) {
   const plugins = [
-    createEditorKeymap(),
+    createEditorKeymap(schema),
+    preventBrowserShortcuts(),
     createAddNoteIdPlugin(),
     createAddParentNoteIdPlugin(),
     history(),

@@ -18,7 +18,7 @@ export function createEditorState(
 
   const state = EditorState.create({
     doc: initialDoc as Node,
-    plugins: createEditorPluginsArray(eventEmitter),
+    plugins: createEditorPluginsArray(eventEmitter, schema),
     schema,
     ...config,
   });

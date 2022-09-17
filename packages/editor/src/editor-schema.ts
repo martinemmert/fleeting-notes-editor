@@ -1,15 +1,14 @@
 import { Schema } from "prosemirror-model";
 
-const createAttributeGetter =
-  (attributes: string[]) => (dom: string | HTMLElement) => {
-    if (typeof dom === "string") return {};
-    const attr: Record<string, string> = {};
-    for (const attribute of attributes) {
-      const domAttr = dom.getAttribute(`data-${attribute}`);
-      if (domAttr) attr[attribute] = domAttr;
-    }
-    return attr;
-  };
+const createAttributeGetter = (attributes: string[]) => (dom: string | HTMLElement) => {
+  if (typeof dom === "string") return {};
+  const attr: Record<string, string> = {};
+  for (const attribute of attributes) {
+    const domAttr = dom.getAttribute(`data-${attribute}`);
+    if (domAttr) attr[attribute] = domAttr;
+  }
+  return attr;
+};
 
 const createAttributes = (attributes: Record<string, string | null>) => {
   const attr: Record<string, { default: string | null }> = {};
@@ -38,6 +37,7 @@ export function createEditorSchema() {
       },
       note_text: {
         content: "text*",
+        marks: "_",
         parseDOM: [{ tag: "p" }],
         toDOM() {
           return ["p", 0];
@@ -52,6 +52,26 @@ export function createEditorSchema() {
       },
       text: {},
       doc: { content: "note+" },
+    },
+    marks: {
+      strong: {
+        parseDOM: [{ tag: "strong" }, { tag: "b" }],
+        toDOM() {
+          return ["strong", 0];
+        },
+      },
+      em: {
+        parseDOM: [{ tag: "em" }, { tag: "i" }],
+        toDOM() {
+          return ["em", 0];
+        },
+      },
+      highlight: {
+        parseDOM: [{ tag: "mark" }],
+        toDOM() {
+          return ["mark", 0];
+        },
+      },
     },
   });
 }

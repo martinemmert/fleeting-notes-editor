@@ -18,7 +18,6 @@ export function MainView() {
     // todo: put this outside of solidjs
     if (window.localStorage) {
       const jsonString = window.localStorage.getItem("doc");
-      console.log(jsonString);
       if (jsonString && typeof jsonString !== "undefined") {
         doc = JSON.parse(jsonString);
       }

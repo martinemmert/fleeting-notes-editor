@@ -7,6 +7,7 @@ import {
   selectAll,
   selectTextblockEnd,
   selectTextblockStart,
+  toggleMark,
 } from "prosemirror-commands";
 import {
   joinNoteBackward,
@@ -18,6 +19,7 @@ import {
   splitNote,
 } from "./editor-commands";
 import { Command } from "prosemirror-state";
+import { Schema } from "prosemirror-model";
 
 let backspace = chainCommands(
   deleteSelection,
@@ -93,12 +95,31 @@ const mac =
 /// [`macBaseKeymap`](#commands.macBaseKeymap).
 export const baseKeymap: { [key: string]: Command } = mac ? macBaseKeymap : pcBaseKeymap;
 
-export function createEditorKeymap() {
-  return keymap({
+export function createEditorKeymap(schema?: Schema) {
+  const map: Record<string, Command> = {
     ...baseKeymap,
     "Mod-z": undo,
     "Mod-y": redo,
     Tab: sinkNote,
     "Shift-Tab": liftNote,
-  });
+  };
+
+  if (schema) {
+    if (schema.marks.strong) {
+      map["Mod-b"] = toggleMark(schema.marks.strong);
+      map["Mod-B"] = toggleMark(schema.marks.strong);
+    }
+
+    if (schema.marks.em) {
+      map["Mod-i"] = toggleMark(schema.marks.em);
+      map["Mod-I"] = toggleMark(schema.marks.em);
+    }
+
+    if (schema.marks.highlight) {
+      map["Mod-m"] = toggleMark(schema.marks.highlight);
+      map["Mod-M"] = toggleMark(schema.marks.highlight);
+    }
+  }
+
+  return keymap(map);
 }
