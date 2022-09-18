@@ -5,6 +5,7 @@ import { EditorState, Plugin, Transaction } from "prosemirror-state";
 import { nanoid } from "nanoid";
 import { isTargetNodeOfType, nodeHasAttribute } from "./editor-utils";
 import { Schema } from "prosemirror-model";
+import { createIndexedDBWriterPlugin } from "./plugins/indexed-db-writer.plugin";
 
 export type Events = {
   update: {
@@ -114,6 +115,7 @@ export function createEditorPluginsArray(emitter?: Emitter<Events>, schema?: Sch
     preventBrowserShortcuts(),
     createAddNoteIdPlugin(),
     createAddParentNoteIdPlugin(),
+    createIndexedDBWriterPlugin(),
     history(),
   ];
   if (emitter) plugins.push(createUpdateEmitter(emitter));

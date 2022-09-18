@@ -12,4 +12,7 @@ export default defineConfig({
       formats: ["es", "cjs"],
     },
   },
+  test: {
+    setupFiles: resolve(__dirname, "vitest.setup.ts"),
+  },
 });
