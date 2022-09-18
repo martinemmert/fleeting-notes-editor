@@ -20,6 +20,7 @@ function createUpdateEmitter(emitter: Emitter<Events>) {
     state: {
       init: () => {},
       apply: (tr, value, oldState, newState) => {
+        if (!tr.docChanged) return;
         emitter.emit("update", { tr, value, oldState, newState });
       },
     },
