@@ -23,16 +23,25 @@ export function createEditorSchema() {
     nodes: {
       note: {
         content: "note_text note_children?",
-        attrs: createAttributes({ id: null, note: "note", parent: null }),
+        attrs: createAttributes({
+          id: null,
+          note: "note",
+          parent: null,
+          completed: null,
+        }),
         parseDOM: [
           {
             tag: "li[data-note]",
-            getAttrs: createAttributeGetter(["id", "note"]),
+            getAttrs: createAttributeGetter(["id", "note", "parent", "completed"]),
           },
         ],
         toDOM(node) {
-          const { id, note } = node.attrs;
-          return ["li", { "data-id": id, "data-note": note }, 0];
+          const { id, note, completed } = node.attrs;
+          return [
+            "li",
+            { "data-id": id, "data-note": note, "data-completed": completed ? "" : null },
+            0,
+          ];
         },
       },
       note_text: {

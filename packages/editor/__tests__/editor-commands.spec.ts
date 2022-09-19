@@ -1,15 +1,19 @@
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   applyCommand,
-  id,
   doc,
+  id,
   note,
+  note_children,
   note_text,
   resetIdCounter,
-  note_children,
 } from "./test-utils";
-import { moveNoteDown, moveNoteUp, splitNote } from "../src/editor-commands";
-import { nanoid } from "nanoid";
+import {
+  moveNoteDown,
+  moveNoteUp,
+  splitNote,
+  toggleNoteCompleteState,
+} from "../src/editor-commands";
 
 beforeAll(() => {
   vi.mock("nanoid");
@@ -44,12 +48,12 @@ describe("commands", () => {
     });
 
     it("should insert a new sibling note before the current note if the cursor is at the start of the current note", () => {
-      const testDoc = doc(note({ id: nanoid() }, note_text("<a>hello world")));
+      const testDoc = doc(note({ id: id(1) }, note_text("<a>hello world")));
       const expectedDoc = doc(
         note({ id: id(2) }, note_text("")),
         note({ id: id(1) }, note_text("<a>hello world"))
       );
-      applyCommand(testDoc, splitNote, expectedDoc, false);
+      applyCommand(testDoc, splitNote, expectedDoc);
     });
 
     it("should move the caret one level up when enter is pressed in an empty node that follows an already empty node", () => {
@@ -94,7 +98,7 @@ describe("commands", () => {
 
       const command = vi.fn(splitNote);
 
-      applyCommand(testDoc, command, expectedDoc, true);
+      applyCommand(testDoc, command, expectedDoc);
     });
   });
 
@@ -222,7 +226,7 @@ describe("commands", () => {
         note({ id: id(6) }, note_text("third child"))
       );
 
-      applyCommand(testDoc, command, expectedDoc, true);
+      applyCommand(testDoc, command, expectedDoc);
       expect(command).toHaveReturnedWith(true);
     });
 
@@ -257,7 +261,7 @@ describe("commands", () => {
         )
       );
 
-      applyCommand(testDoc, command, expectedDoc, true);
+      applyCommand(testDoc, command, expectedDoc);
       expect(command).toHaveReturnedWith(true);
     });
   });
@@ -422,6 +426,222 @@ describe("commands", () => {
 
       applyCommand(testDoc, command, expectedDoc);
       expect(command).toHaveReturnedWith(true);
+    });
+  });
+
+  describe("toggleNoteCompleteState", () => {
+    it("should add the attribute completed", () => {
+      const command = vi.fn(toggleNoteCompleteState);
+
+      const testDoc = doc(note({}, note_text("first child<a>")));
+      const expectedDoc = doc(note({ completed: true }, note_text("first child<a>")));
+      applyCommand(testDoc, command, expectedDoc);
+      expect(command).toHaveReturnedWith(true);
+    });
+
+    it("should remove the attribute completed", () => {
+      const command = vi.fn(toggleNoteCompleteState);
+
+      const testDoc = doc(note({ completed: true }, note_text("first child<a>")));
+      const expectedDoc = doc(note({ completed: false }, note_text("first child<a>")));
+      applyCommand(testDoc, command, expectedDoc);
+      expect(command).toHaveReturnedWith(true);
+    });
+
+    it("should add the attribute recursive", () => {
+      const command = vi.fn(toggleNoteCompleteState);
+
+      const testDoc = doc(
+        note(
+          { id: id(1) }, //
+          note_text("lorem ipsum")
+        ), //
+        note(
+          { id: id(2), completed: null },
+          note_text("first child<a>"),
+          note_children(
+            note(
+              { id: id(3), parent: id(2), completed: null }, //
+              note_text("second_child")
+            ),
+            note(
+              { id: id(4), parent: id(2), completed: null },
+              note_text("third child"), //
+              note_children(
+                note(
+                  { id: id(5), parent: id(4), completed: null }, //
+                  note_text("fourth_child")
+                ),
+                note(
+                  { id: id(6), parent: id(4), completed: null }, //
+                  note_text("fifth child")
+                )
+              )
+            )
+          )
+        ),
+        note(
+          { id: id(7), parent: null, completed: null }, //
+          note_text("lorem ipsum")
+        ) //
+      );
+
+      const expectedDoc = doc(
+        note(
+          { id: id(1) }, //
+          note_text("lorem ipsum")
+        ), //
+        note(
+          { id: id(2), completed: true },
+          note_text("first child<a>"),
+          note_children(
+            note(
+              { id: id(3), parent: id(2), completed: true }, //
+              note_text("second_child")
+            ),
+            note(
+              { id: id(4), parent: id(2), completed: true },
+              note_text("third child"), //
+              note_children(
+                note(
+                  { id: id(5), parent: id(4), completed: true }, //
+                  note_text("fourth_child")
+                ),
+                note(
+                  { id: id(6), parent: id(4), completed: true }, //
+                  note_text("fifth child")
+                )
+              )
+            )
+          )
+        ),
+        note(
+          { id: id(7), parent: null, completed: null }, //
+          note_text("lorem ipsum")
+        ) //
+      );
+
+      applyCommand(testDoc, command, expectedDoc, true);
+      expect(command).toHaveReturnedWith(true);
+    });
+
+    it("should remove the attribute recursively", () => {
+      const command = vi.fn(toggleNoteCompleteState);
+
+      const testDoc = doc(
+        note(
+          { id: id(1) }, //
+          note_text("lorem ipsum")
+        ), //
+        note(
+          { id: id(2), completed: true },
+          note_text("first child<a>"),
+          note_children(
+            note(
+              { id: id(3), parent: id(2), completed: true }, //
+              note_text("second_child")
+            ),
+            note(
+              { id: id(4), parent: id(2), completed: true },
+              note_text("third child"), //
+              note_children(
+                note(
+                  { id: id(5), parent: id(4), completed: true }, //
+                  note_text("fourth_child")
+                ),
+                note(
+                  { id: id(6), parent: id(4), completed: true }, //
+                  note_text("fifth child")
+                )
+              )
+            )
+          )
+        ),
+        note(
+          { id: id(7), parent: null, completed: null }, //
+          note_text("lorem ipsum")
+        ) //
+      );
+
+      const expectedDoc = doc(
+        note(
+          { id: id(1) }, //
+          note_text("lorem ipsum")
+        ), //
+        note(
+          { id: id(2), completed: false },
+          note_text("first child<a>"),
+          note_children(
+            note(
+              { id: id(3), parent: id(2), completed: false }, //
+              note_text("second_child")
+            ),
+            note(
+              { id: id(4), parent: id(2), completed: false },
+              note_text("third child"), //
+              note_children(
+                note(
+                  { id: id(5), parent: id(4), completed: false }, //
+                  note_text("fourth_child")
+                ),
+                note(
+                  { id: id(6), parent: id(4), completed: false }, //
+                  note_text("fifth child")
+                )
+              )
+            )
+          )
+        ),
+        note(
+          { id: id(7), parent: null, completed: null }, //
+          note_text("lorem ipsum")
+        ) //
+      );
+
+      applyCommand(testDoc, command, expectedDoc, true);
+      expect(command).toHaveReturnedWith(true);
+    });
+
+    it("should not run when current note's parent is completed", () => {
+      const command = vi.fn(toggleNoteCompleteState);
+
+      const testDoc = doc(
+        note(
+          { id: id(1) }, //
+          note_text("lorem ipsum")
+        ), //
+        note(
+          { id: id(2), completed: true },
+          note_text("first child"),
+          note_children(
+            note(
+              { id: id(3), parent: id(2), completed: true }, //
+              note_text("second_child")
+            ),
+            note(
+              { id: id(4), parent: id(2), completed: true },
+              note_text("third child<a>"), //
+              note_children(
+                note(
+                  { id: id(5), parent: id(4), completed: true }, //
+                  note_text("fourth_child")
+                ),
+                note(
+                  { id: id(6), parent: id(4), completed: true }, //
+                  note_text("fifth child")
+                )
+              )
+            )
+          )
+        ),
+        note(
+          { id: id(7), parent: null, completed: null }, //
+          note_text("lorem ipsum")
+        ) //
+      );
+
+      applyCommand(testDoc, command, testDoc);
+      expect(command).toHaveReturnedWith(false);
     });
   });
 });

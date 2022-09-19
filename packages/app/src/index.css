@@ -11,7 +11,7 @@
         @apply py-6;
         @apply rounded-lg;
         @apply bg-slate-50;
-        @apply font-proxima font-light text-base;
+        @apply font-normal text-base;
 
         .ProseMirror {
             @apply outline-none;
@@ -24,6 +24,9 @@
             @apply leading-relaxed;
             @apply list-none;
 
+            &[data-completed] {
+                @apply line-through text-gray-400;
+            }
 
             &:not(:has(> p  > br.ProseMirror-trailingBreak)) {
 

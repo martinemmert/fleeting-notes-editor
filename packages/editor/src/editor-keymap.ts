@@ -17,6 +17,7 @@ import {
   moveNoteUp,
   sinkNote,
   splitNote,
+  toggleNoteCompleteState,
 } from "./editor-commands";
 import { Command } from "prosemirror-state";
 import { Schema } from "prosemirror-model";
@@ -103,6 +104,8 @@ export function createEditorKeymap(schema?: Schema) {
     Tab: sinkNote,
     "Shift-Tab": liftNote,
   };
+
+  map["Mod-Enter"] = toggleNoteCompleteState;
 
   if (schema) {
     if (schema.marks.strong) {

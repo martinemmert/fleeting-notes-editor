@@ -1,14 +1,10 @@
 import { Node } from "prosemirror-model";
 import { builders, eq, NodeBuilder } from "prosemirror-test-builder";
 import { createEditorSchema } from "../src/editor-schema";
-import {
-  Command,
-  NodeSelection,
-  Selection,
-  TextSelection,
-} from "prosemirror-state";
+import { Command, NodeSelection, Selection, TextSelection } from "prosemirror-state";
 import { expect } from "vitest";
 import { createEditorState } from "../src/editor-state";
+import { resetIdCounter } from "../__mocks__/nanoid";
 
 export { getNextMockedId, id, resetIdCounter } from "../__mocks__/nanoid";
 
@@ -36,29 +32,15 @@ export function getSelection(doc: Node) {
   return Selection.atStart(doc);
 }
 
-export function applyCommand(
-  doc: Node,
-  command: Command,
-  result: Node,
-  debug = false
-) {
+export function applyCommand(doc: Node, command: Command, result: Node, debug = false) {
   let state = createEditorState(doc, undefined, {
     selection: getSelection(doc),
   });
 
+  state.apply(state.tr.setMeta("__init__", true));
   command(state, (tr) => (state = state.apply(tr)));
 
-  const isEqual = eq(result, state.doc);
-
-  if (!isEqual && debug) {
-    console.log(
-      JSON.stringify(result.toJSON(), undefined, " "),
-      JSON.stringify(state.doc.toJSON(), undefined, " ")
-    );
-  }
-
-  // test if the current document is equal to the expected document
-  expect(isEqual).toBe(true);
+  expect(state.doc.toJSON()).toEqual(result.toJSON());
 
   if (result && (result as any).tag.a != null) {
     const expectedSelection = getSelection(result);

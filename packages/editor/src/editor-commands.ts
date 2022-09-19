@@ -395,3 +395,51 @@ export const moveNoteDown: Command = (state, dispatch) => {
 
   return true;
 };
+
+export const toggleNoteCompleteState: Command = (state, dispatch) => {
+  const { $from } = state.selection;
+  const noteType = state.schema.nodes.note;
+  const noteTextType = state.schema.nodes.note_text;
+
+  if (!isTargetNodeOfType($from.parent, noteTextType)) return false;
+
+  // get the note of the current note_text node
+  const noteStart = $from.before(-1);
+  const note = state.doc.nodeAt(noteStart);
+
+  // abort if parent note is completed
+  if ($from.depth >= 4 && $from.node(-3).attrs.completed) {
+    if (dispatch)
+      dispatch(
+        state.tr.setMeta("message", {
+          type: "blocked_command_info",
+          payload: {
+            command: "toggleNoteCompleteState",
+            reason: "parent_note_completed",
+          },
+        })
+      );
+    return false;
+  }
+
+  if (!note || !isTargetNodeOfType(note, noteType)) return false;
+
+  const completed = note.attrs.completed;
+
+  if (dispatch) {
+    const tr = state.tr;
+    tr.setNodeAttribute(noteStart, "completed", !completed);
+
+    note.descendants((node, pos) => {
+      if (isTargetNodeOfType(node, noteTextType)) return false;
+      if (isTargetNodeOfType(node, noteType)) {
+        tr.setNodeAttribute(pos + noteStart + 1, "completed", !completed);
+      }
+      return true;
+    });
+
+    dispatch(tr);
+  }
+
+  return true;
+};
