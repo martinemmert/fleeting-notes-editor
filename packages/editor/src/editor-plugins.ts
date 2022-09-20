@@ -5,6 +5,7 @@ import { EditorState, Plugin, Transaction } from "prosemirror-state";
 import { nanoid } from "nanoid";
 import { isTargetNodeOfType, nodeHasAttribute } from "./editor-utils";
 import { Schema } from "prosemirror-model";
+import { AttrStep } from "prosemirror-transform";
 
 export type Events = {
   update: {
@@ -12,6 +13,9 @@ export type Events = {
     value: unknown;
     oldState: EditorState;
     newState: EditorState;
+  };
+  blocked_input_info: {
+    reason: "note_completed";
   };
 };
 
@@ -108,9 +112,30 @@ function preventBrowserShortcuts() {
   });
 }
 
+function preventModifyingCompletedNotes(emitter?: Emitter<Events>) {
+  return new Plugin({
+    filterTransaction(tr, state) {
+      if (
+        !tr.steps.some((step) => step instanceof AttrStep) && //
+        tr.docChanged
+      ) {
+        const { note } = state.schema.nodes;
+        const { $from } = tr.selection;
+        const wrappingNode = $from.node(-1);
+        if (isTargetNodeOfType(wrappingNode, note) && wrappingNode.attrs.completed === true) {
+          if (emitter) emitter.emit("blocked_input_info", { reason: "note_completed" });
+          return false;
+        }
+      }
+      return true;
+    },
+  });
+}
+
 export function createEditorPluginsArray(emitter?: Emitter<Events>, schema?: Schema) {
   const plugins = [
     createEditorKeymap(schema),
+    preventModifyingCompletedNotes(emitter),
     preventBrowserShortcuts(),
     createAddNoteIdPlugin(),
     createAddParentNoteIdPlugin(),
