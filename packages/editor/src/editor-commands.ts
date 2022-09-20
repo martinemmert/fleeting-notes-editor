@@ -26,28 +26,42 @@ export const splitNote: Command = (state, dispatch) => {
       //
       // depth must be greater than 2
       if (state.selection.$from.depth < 4) break shouldLiftInsteadOfSplit;
-      //
-      // get the wrapping note_children node
-      const wrappingNoteChildren = state.selection.$from.node(-2);
-      //
-      // child count must be greater than 2
-      const childCount = wrappingNoteChildren.childCount;
-      if (childCount <= 2) break shouldLiftInsteadOfSplit;
-      //
-      // current note must be empty
-      const isCurrentNoteEmpty = state.selection.$from.parent.textContent.trim() === "";
-      if (!isCurrentNoteEmpty) break shouldLiftInsteadOfSplit;
-      //
-      // current note must be the last child
-      const isLastChild = wrappingNoteChildren.lastChild === state.selection.$from.node(-1);
-      if (!isLastChild) break shouldLiftInsteadOfSplit;
-      //
-      // previous sibling note must be empty
-      const index = Math.max(0, state.selection.$from.index(-2) - 1);
-      const isPrevSiblingNoteEmpty = wrappingNoteChildren.child(index).textContent.trim() === "";
-      if (!isPrevSiblingNoteEmpty) break shouldLiftInsteadOfSplit;
 
+      // get selection start position
+      const { $from } = state.selection;
+
+      // break if not last child
+      if ($from.node(-2).lastChild !== $from.node(-1)) break shouldLiftInsteadOfSplit;
+
+      // break if not empty
+      if ($from.parent.textContent.trim() !== "") break shouldLiftInsteadOfSplit;
+
+      // lift instead of split
       return liftNote(state, dispatch);
+
+      // we keep this code to have a reference for walking the token tree backwards
+
+      // let run = true;
+      // let currentPos = $from.pos;
+      // let emptyTextNotes = 0;
+      // let textNotes = 0;
+
+      // traverse the nodes back and find at least two text notes
+      // increment the emptyTextNotes counter if they are empty
+      // while (run) {
+      //   loop: {
+      //     const node = state.doc.nodeAt(currentPos);
+      //     if (!node) break loop;
+      //     if (!isTargetNodeOfType(node, noteTextType)) break loop;
+      //     textNotes++;
+      //     if (node.childCount == 0) emptyTextNotes++;
+      //   }
+      //   run = currentPos > 0 && textNotes < 2;
+      //   currentPos--;
+      // }
+
+      // if two empty text nodes are present, the node should be lifted
+      // if (emptyTextNotes > 1) return liftNote(state, dispatch);
     }
 
     // insert a new node before the selection is at the start of the note

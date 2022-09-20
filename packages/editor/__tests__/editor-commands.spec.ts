@@ -56,49 +56,95 @@ describe("commands", () => {
       applyCommand(testDoc, splitNote, expectedDoc);
     });
 
-    it("should move the caret one level up when enter is pressed in an empty node that follows an already empty node", () => {
+    it("should continue to lift the current note when enter is pressed repeatedly in an empty note that follows an empty node", () => {
       const testDoc = doc(
         note(
+          { id: id(1), parent: null },
           note_text("Headline"),
           note_children(
             note(
+              { id: id(2), parent: id(1) },
               note_text("Hello World") //
             ),
             note(
-              note_text("Hello World") //
-            ),
-            note(
-              note_text("") //
-            ),
-            note(
-              note_text("<a>") //
+              { id: id(3), parent: id(1) },
+              note_text("Hello World"), //
+              note_children(
+                //
+                note(
+                  { id: id(4), parent: id(3) }, //
+                  note_text("one")
+                ),
+                note(
+                  { id: id(6), parent: id(3) }, //
+                  note_text("<a>")
+                )
+              )
             )
           )
         )
       );
-      const expectedDoc = doc(
+
+      const expectedDoc1 = doc(
         note(
+          { id: id(1), parent: null },
           note_text("Headline"),
           note_children(
             note(
+              { id: id(2), parent: id(1) },
               note_text("Hello World") //
             ),
             note(
+              { id: id(3), parent: id(1) },
+              note_text("Hello World"), //
+              note_children(
+                //
+                note(
+                  { id: id(4), parent: id(3) }, //
+                  note_text("one")
+                )
+              )
+            ),
+            note(
+              { id: id(6), parent: id(1) }, //
+              note_text("<a>")
+            )
+          )
+        )
+      );
+
+      const expectedDoc2 = doc(
+        note(
+          { id: id(1), parent: null },
+          note_text("Headline"),
+          note_children(
+            note(
+              { id: id(2), parent: id(1) },
               note_text("Hello World") //
             ),
             note(
-              note_text("") //
+              { id: id(3), parent: id(1) },
+              note_text("Hello World"), //
+              note_children(
+                //
+                note(
+                  { id: id(4), parent: id(3) }, //
+                  note_text("one")
+                )
+              )
             )
           )
         ),
         note(
-          note_text("<a>") //
+          { id: id(6), parent: null }, //
+          note_text("<a>")
         )
       );
 
       const command = vi.fn(splitNote);
 
-      applyCommand(testDoc, command, expectedDoc);
+      applyCommand(testDoc, command, expectedDoc1);
+      applyCommand(expectedDoc1, command, expectedDoc2);
     });
   });
 
