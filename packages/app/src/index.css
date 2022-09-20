@@ -45,7 +45,7 @@
                 @apply bg-transparent;
             }
 
-            &[data-completed] {
+            &[data-completed]:not(:has(> p > br.ProseMirror-trailingBreak)) {
                 &:before {
                     @apply absolute block w-[14px] h-[14px] -left-4 -ml-[2px] top-[9px];
                     @apply bg-gray-400;
