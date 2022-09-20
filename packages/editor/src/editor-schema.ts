@@ -49,7 +49,7 @@ export function createEditorSchema() {
         marks: "_",
         parseDOM: [{ tag: "p" }],
         toDOM() {
-          return ["p", 0];
+          return ["p", { class: "note_text" }, 0];
         },
       },
       note_children: {

@@ -6,6 +6,7 @@ import { nanoid } from "nanoid";
 import { isTargetNodeOfType, nodeHasAttribute } from "./editor-utils";
 import { Schema } from "prosemirror-model";
 import { AttrStep } from "prosemirror-transform";
+import { Decoration, DecorationSet } from "prosemirror-view";
 
 export type Events = {
   update: {
@@ -132,6 +133,24 @@ function preventModifyingCompletedNotes(emitter?: Emitter<Events>) {
   });
 }
 
+function decorateCurrentNote() {
+  return new Plugin({
+    props: {
+      decorations(state) {
+        const { $from } = state.selection;
+        const noteType = state.schema.nodes.note;
+
+        if (isTargetNodeOfType($from.node(-1), noteType)) {
+          return DecorationSet.create(state.doc, [
+            Decoration.node($from.start(-1) - 1, $from.end(-1) + 1, { class: "note--focused" }),
+          ]);
+        }
+        return null;
+      },
+    },
+  });
+}
+
 export function createEditorPluginsArray(emitter?: Emitter<Events>, schema?: Schema) {
   const plugins = [
     createEditorKeymap(schema),
@@ -139,6 +158,7 @@ export function createEditorPluginsArray(emitter?: Emitter<Events>, schema?: Sch
     preventBrowserShortcuts(),
     createAddNoteIdPlugin(),
     createAddParentNoteIdPlugin(),
+    decorateCurrentNote(),
     history(),
   ];
   if (emitter) plugins.push(createUpdateEmitter(emitter));

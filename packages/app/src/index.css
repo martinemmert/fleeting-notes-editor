@@ -18,19 +18,27 @@
             white-space: pre-wrap;
         }
 
-        li {
+        [data-note] {
             @apply relative;
             @apply ml-9 mr-8;
-            @apply leading-relaxed;
+            @apply leading-normal;
             @apply list-disc;
+            @apply text-slate-600;
+
+            [data-note] {
+                @apply mr-0;
+            }
+
+            .note_text {
+                @apply p-1;
+            }
 
             &[data-completed],
             &[data-completed] strong,
             &[data-completed] mark,
             &[data-completed] em {
-                @apply line-through text-slate-400;
+                @apply line-through text-gray-400;
                 @apply list-none;
-                font-weight: 300;
             }
 
             &[data-completed] mark {
@@ -39,12 +47,28 @@
 
             &[data-completed] {
                 &:before {
-                    @apply absolute block w-[14px] h-[14px] -left-4 -ml-[2px] top-[7px];
-                    @apply bg-slate-400;
+                    @apply absolute block w-[14px] h-[14px] -left-4 -ml-[2px] top-[9px];
+                    @apply bg-gray-400;
                     content: "";
                     mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3C!--! Font Awesome Pro 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2022 Fonticons, Inc. --%3E%3Cpath d='M470.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L192 338.7 425.4 105.4c12.5-12.5 32.8-12.5 45.3 0z'/%3E%3C/svg%3E");
                     mask-size: cover;
                 }
+            }
+
+            /*&.note--focused:not([data-completed]) {
+                @apply bg-slate-200;
+
+                &:has(> p > br.ProseMirror-trailingBreak) {
+                    @apply bg-green-400;
+                }
+            }*/
+
+            &.note--focused:not([data-completed]) {
+                @apply bg-slate-100 rounded-md text-slate-900;
+            }
+
+            &:not(.note--focused):has(> p > br.ProseMirror-trailingBreak) {
+                @apply list-none;
             }
 
             /*&:not(:has(> p  > br.ProseMirror-trailingBreak)) {
