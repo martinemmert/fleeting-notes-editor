@@ -9,6 +9,8 @@ import {
   resetIdCounter,
 } from "./test-utils";
 import {
+  collapseNoteChildren,
+  expandNoteChildren,
   moveNoteDown,
   moveNoteUp,
   splitNote,
@@ -723,5 +725,79 @@ describe("commands", () => {
       applyCommand(testDoc, command, testDoc);
       expect(command).toHaveReturnedWith(false);
     });
+  });
+});
+
+describe("expandNoteChildren", () => {
+  it("should set the attribute expanded true on a notes note_children child node", () => {
+    const command = vi.fn(expandNoteChildren);
+
+    const testDoc = doc(
+      note(
+        { id: id(1), expanded: false },
+        note_text("first child<a>"),
+        note_children(
+          { expanded: false }, //
+          note(
+            { id: id(2), parent: id(1) }, //
+            note_text("second_child")
+          )
+        )
+      )
+    );
+
+    const expectedDoc = doc(
+      note(
+        { id: id(1), expanded: true },
+        note_text("first child"),
+        note_children(
+          { expanded: true },
+          note(
+            { id: id(2), parent: id(1) }, //
+            note_text("second_child")
+          )
+        )
+      )
+    );
+
+    applyCommand(testDoc, command, expectedDoc);
+    expect(command).toHaveReturnedWith(true);
+  });
+});
+
+describe("collapseNoteChildren", () => {
+  it("should set the attribute expanded to false on a notes note_children child node", () => {
+    const command = vi.fn(collapseNoteChildren);
+
+    const testDoc = doc(
+      note(
+        { id: id(1), expanded: true },
+        note_text("first child<a>"),
+        note_children(
+          { expanded: true }, //
+          note(
+            { id: id(2), parent: id(1) }, //
+            note_text("second_child")
+          )
+        )
+      )
+    );
+
+    const expectedDoc = doc(
+      note(
+        { id: id(1), expanded: false },
+        note_text("first child"),
+        note_children(
+          { expanded: false },
+          note(
+            { id: id(2), parent: id(1) }, //
+            note_text("second_child")
+          )
+        )
+      )
+    );
+
+    applyCommand(testDoc, command, expectedDoc);
+    expect(command).toHaveReturnedWith(true);
   });
 });

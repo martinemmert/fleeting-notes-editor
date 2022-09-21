@@ -1,5 +1,5 @@
 import { AllSelection, Command, TextSelection } from "prosemirror-state";
-import { Fragment, NodeRange, Slice } from "prosemirror-model";
+import { Fragment, Node, NodeRange, Slice } from "prosemirror-model";
 import { isTargetNodeOfType, mapChildren, positionAtEnd } from "./editor-utils";
 import { canSplit, liftTarget, ReplaceAroundStep, ReplaceStep } from "prosemirror-transform";
 
@@ -466,6 +466,146 @@ export const toggleNoteCompleteState: Command = (state, dispatch) => {
       return true;
     });
 
+    dispatch(tr);
+  }
+
+  return true;
+};
+
+export const expandNoteChildren: Command = (state, dispatch) => {
+  const { $from } = state.selection;
+  const noteType = state.schema.nodes.note;
+  const noteTextType = state.schema.nodes.note_text;
+  const noteChildrenType = state.schema.nodes.note_children;
+
+  // exit if not within a note_text node
+  if (!isTargetNodeOfType($from.parent, noteTextType)) return false;
+
+  // get the note of the current note_text node
+  const noteStart = $from.before(-1);
+  const note = state.doc.nodeAt(noteStart);
+
+  // exit if no note was found at the expected position
+  if (!note || !isTargetNodeOfType(note, noteType)) return false;
+
+  // exit if no note_children node is present within the current note
+  let noteChildren: Node | undefined;
+  let noteChildrenOffset: number = 0;
+
+  note.forEach((node, offset) => {
+    if (isTargetNodeOfType(node, noteChildrenType)) {
+      noteChildren = node;
+      noteChildrenOffset = offset;
+    }
+  });
+
+  if (!noteChildren) {
+    if (dispatch) {
+      dispatch(
+        state.tr.setMeta("message", {
+          type: "blocked_command_info",
+          payload: {
+            command: "expandNoteChildren",
+            reason: "note_children_not_present",
+          },
+        })
+      );
+    }
+    return false;
+  }
+
+  const isExpanded = noteChildren.attrs.expanded;
+
+  // exit if note is already expanded
+  if (isExpanded) {
+    if (dispatch) {
+      dispatch(
+        state.tr.setMeta("message", {
+          type: "blocked_command_info",
+          payload: {
+            command: "expandNoteChildren",
+            reason: "note_children_already_expanded",
+          },
+        })
+      );
+    }
+    return false;
+  }
+
+  if (dispatch) {
+    const tr = state.tr;
+    tr.setNodeAttribute(noteStart, "expanded", true);
+    tr.setNodeAttribute(noteStart + noteChildrenOffset + 1, "expanded", true);
+    dispatch(tr);
+  }
+
+  return true;
+};
+
+export const collapseNoteChildren: Command = (state, dispatch) => {
+  const { $from } = state.selection;
+  const noteType = state.schema.nodes.note;
+  const noteTextType = state.schema.nodes.note_text;
+  const noteChildrenType = state.schema.nodes.note_children;
+
+  // exit if not within a note_text node
+  if (!isTargetNodeOfType($from.parent, noteTextType)) return false;
+
+  // get the note of the current note_text node
+  const noteStart = $from.before(-1);
+  const note = state.doc.nodeAt(noteStart);
+
+  // exit if no note was found at the expected position
+  if (!note || !isTargetNodeOfType(note, noteType)) return false;
+
+  // exit if no note_children node is present within the current note
+  let noteChildren: Node | undefined;
+  let noteChildrenOffset: number = 0;
+
+  note.forEach((node, offset) => {
+    if (isTargetNodeOfType(node, noteChildrenType)) {
+      noteChildren = node;
+      noteChildrenOffset = offset;
+    }
+  });
+
+  if (!noteChildren) {
+    if (dispatch) {
+      dispatch(
+        state.tr.setMeta("message", {
+          type: "blocked_command_info",
+          payload: {
+            command: "expandNoteChildren",
+            reason: "note_children_not_present",
+          },
+        })
+      );
+    }
+    return false;
+  }
+
+  const isExpanded = noteChildren.attrs.expanded;
+
+  // exit if note is already expanded
+  if (!isExpanded) {
+    if (dispatch) {
+      dispatch(
+        state.tr.setMeta("message", {
+          type: "blocked_command_info",
+          payload: {
+            command: "collapseNoteChildren",
+            reason: "note_children_already_collapsed",
+          },
+        })
+      );
+    }
+    return false;
+  }
+
+  if (dispatch) {
+    const tr = state.tr;
+    tr.setNodeAttribute(noteStart, "expanded", false);
+    tr.setNodeAttribute(noteStart + noteChildrenOffset + 1, "expanded", false);
     dispatch(tr);
   }
 

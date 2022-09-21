@@ -7,6 +7,7 @@ import { isTargetNodeOfType, nodeHasAttribute } from "./editor-utils";
 import { Schema } from "prosemirror-model";
 import { AttrStep } from "prosemirror-transform";
 import { Decoration, DecorationSet } from "prosemirror-view";
+import { collapseNoteChildren, expandNoteChildren } from "./editor-commands";
 
 export type Events = {
   update: {
@@ -103,9 +104,19 @@ function createAddParentNoteIdPlugin() {
 function preventBrowserShortcuts() {
   return new Plugin({
     props: {
-      handleKeyDown(_, event) {
+      handleKeyDown(view, event) {
         if ((event.metaKey || event.ctrlKey) && event.key === "m") {
           event.preventDefault();
+        }
+        if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === ";") {
+          event.preventDefault();
+          collapseNoteChildren(view.state, view.dispatch);
+          return true;
+        }
+        if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === ":") {
+          event.preventDefault();
+          expandNoteChildren(view.state, view.dispatch);
+          return true;
         }
         return false;
       },

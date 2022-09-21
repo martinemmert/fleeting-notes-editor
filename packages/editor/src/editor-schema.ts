@@ -10,8 +10,8 @@ const createAttributeGetter = (attributes: string[]) => (dom: string | HTMLEleme
   return attr;
 };
 
-const createAttributes = (attributes: Record<string, string | null>) => {
-  const attr: Record<string, { default: string | null }> = {};
+const createAttributes = (attributes: Record<string, string | number | boolean | null>) => {
+  const attr: Record<string, { default: string | number | boolean | null }> = {};
   for (const [key, value] of Object.entries(attributes)) {
     attr[key] = { default: value };
   }
@@ -28,6 +28,7 @@ export function createEditorSchema() {
           note: "note",
           parent: null,
           completed: null,
+          expanded: true,
         }),
         parseDOM: [
           {
@@ -36,10 +37,15 @@ export function createEditorSchema() {
           },
         ],
         toDOM(node) {
-          const { id, note, completed } = node.attrs;
+          const { id, note, completed, expanded } = node.attrs;
           return [
             "li",
-            { "data-id": id, "data-note": note, "data-completed": completed ? "" : null },
+            {
+              "data-id": id,
+              "data-note": note,
+              "data-completed": completed ? "" : null,
+              "data-expanded": expanded ? "" : null,
+            },
             0,
           ];
         },
@@ -53,10 +59,15 @@ export function createEditorSchema() {
         },
       },
       note_children: {
-        content: "note+",
+        content: "note*",
+        selectable: false,
+        attrs: createAttributes({
+          expanded: true,
+        }),
         parseDOM: [{ tag: "ul" }],
-        toDOM() {
-          return ["ul", 0];
+        toDOM(node) {
+          const isExpanded = node.attrs.expanded;
+          return isExpanded ? ["ul", 0] : ["ul"];
         },
       },
       text: {},
