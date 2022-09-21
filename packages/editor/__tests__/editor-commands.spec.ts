@@ -494,6 +494,40 @@ describe("commands", () => {
       expect(command).toHaveReturnedWith(true);
     });
 
+    it("should not add the attribute on empty notes", () => {
+      const command = vi.fn(toggleNoteCompleteState);
+
+      const testDoc = doc(
+        note(
+          { id: id(1), completed: null }, //
+          note_text("<a>")
+        )
+      );
+
+      const expectedDoc = doc(
+        note(
+          { id: id(1), completed: null }, //
+          note_text("<a>")
+        )
+      );
+
+      const dispatcher = applyCommand(testDoc, command, expectedDoc);
+      expect(command).toHaveReturnedWith(false);
+      expect(dispatcher).toHaveBeenCalledWith(
+        expect.objectContaining({
+          meta: {
+            message: {
+              type: "blocked_command_info",
+              payload: {
+                command: "toggleNoteCompleteState",
+                reason: "note_empty",
+              },
+            },
+          },
+        })
+      );
+    });
+
     it("should add the attribute recursive", () => {
       const command = vi.fn(toggleNoteCompleteState);
 

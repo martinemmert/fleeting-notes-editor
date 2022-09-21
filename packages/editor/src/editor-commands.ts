@@ -421,6 +421,20 @@ export const toggleNoteCompleteState: Command = (state, dispatch) => {
   const noteStart = $from.before(-1);
   const note = state.doc.nodeAt(noteStart);
 
+  if ($from.parent.textContent.trim() === "") {
+    if (dispatch)
+      dispatch(
+        state.tr.setMeta("message", {
+          type: "blocked_command_info",
+          payload: {
+            command: "toggleNoteCompleteState",
+            reason: "note_empty",
+          },
+        })
+      );
+    return false;
+  }
+
   // abort if parent note is completed
   if ($from.depth >= 4 && $from.node(-3).attrs.completed) {
     if (dispatch)

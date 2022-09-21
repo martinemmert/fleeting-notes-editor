@@ -2,7 +2,7 @@ import { Node } from "prosemirror-model";
 import { builders, eq, NodeBuilder } from "prosemirror-test-builder";
 import { createEditorSchema } from "../src/editor-schema";
 import { Command, NodeSelection, Selection, TextSelection } from "prosemirror-state";
-import { expect } from "vitest";
+import { expect, vi } from "vitest";
 import { createEditorState } from "../src/editor-state";
 import { resetIdCounter } from "../__mocks__/nanoid";
 
@@ -38,7 +38,8 @@ export function applyCommand(doc: Node, command: Command, result: Node, debug = 
   });
 
   state.apply(state.tr.setMeta("__init__", true));
-  command(state, (tr) => (state = state.apply(tr)));
+  const dispatch = vi.fn((tr) => (state = state.apply(tr)));
+  command(state, dispatch);
 
   expect(state.doc.toJSON()).toEqual(result.toJSON());
 
@@ -55,5 +56,6 @@ export function applyCommand(doc: Node, command: Command, result: Node, debug = 
 
     // test if the current selection is equal to the expected selection
     expect(isEqualSelection).toBe(true);
+    return dispatch;
   }
 }

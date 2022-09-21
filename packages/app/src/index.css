@@ -68,7 +68,7 @@
             }
 
             &:not(.note--focused):has(> p > br.ProseMirror-trailingBreak) {
-                @apply list-none;
+                @apply text-slate-300;
             }
 
             /*&:not(:has(> p  > br.ProseMirror-trailingBreak)) {
