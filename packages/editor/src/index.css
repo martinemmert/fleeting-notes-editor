@@ -1,0 +1,24 @@
+
+.note__collapse-widget {
+    position: absolute;
+    display: block;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin-top: 0.45rem;
+    margin-left: 0.95rem;
+    z-index: 1;
+}
+
+.note__collapse-widget--collapsed {
+    outline: 7px solid currentColor;
+    outline-offset: -8px;
+    border-radius: 50%;
+    opacity: 25%;
+}
+
+.note__collapse-widget--expanded {
+    outline: 2px solid currentColor;
+    outline-offset: -4px;
+    border-radius: 50%;
+    opacity: 50%;
+}

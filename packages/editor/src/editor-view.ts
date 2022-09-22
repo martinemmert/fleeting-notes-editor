@@ -1,5 +1,6 @@
 import { EditorState } from "prosemirror-state";
 import { DirectEditorProps, EditorView } from "prosemirror-view";
+import "./index.css";
 
 export function createEditorView(
   element: HTMLElement,
