@@ -4,7 +4,6 @@ import { createEditorSchema } from "../src/editor-schema";
 import { Command, NodeSelection, Selection, TextSelection } from "prosemirror-state";
 import { expect, vi } from "vitest";
 import { createEditorState } from "../src/editor-state";
-import { resetIdCounter } from "../__mocks__/nanoid";
 
 export { getNextMockedId, id, resetIdCounter } from "../__mocks__/nanoid";
 
@@ -58,4 +57,6 @@ export function applyCommand(doc: Node, command: Command, result: Node, debug = 
     expect(isEqualSelection).toBe(true);
     return dispatch;
   }
+
+  return;
 }
