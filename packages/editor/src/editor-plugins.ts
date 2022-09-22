@@ -8,6 +8,7 @@ import { Schema } from "prosemirror-model";
 import { AttrStep } from "prosemirror-transform";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { collapseNoteChildren, expandNoteChildren } from "./editor-commands";
+import { createSkipCollapsedNotesPlugin } from "./plugins/skip-hidden-notes/skip-collapsed-notes";
 
 export type Events = {
   update: {
@@ -165,6 +166,7 @@ function decorateCurrentNote() {
 export function createEditorPluginsArray(emitter?: Emitter<Events>, schema?: Schema) {
   const plugins = [
     createEditorKeymap(schema),
+    createSkipCollapsedNotesPlugin(),
     preventModifyingCompletedNotes(emitter),
     preventBrowserShortcuts(),
     createAddNoteIdPlugin(),
