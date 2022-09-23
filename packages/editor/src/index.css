@@ -1,4 +1,11 @@
 
+[data-note] {
+    position: relative;
+    margin: 0 0 0 2.25rem;
+    line-height: 2.125;
+}
+
+
 .note__collapse-widget {
     position: absolute;
     display: block;
@@ -10,15 +17,16 @@
 }
 
 .note__collapse-widget--collapsed {
-    outline: 7px solid currentColor;
-    outline-offset: -8px;
+    outline: 8px solid currentColor;
+    background: currentColor;
+    outline-offset: -6px;
     border-radius: 50%;
     opacity: 25%;
 }
 
 .note__collapse-widget--expanded {
     outline: 2px solid currentColor;
-    outline-offset: -4px;
+    outline-offset: -1px;
     border-radius: 50%;
-    opacity: 50%;
+    opacity: 25%;
 }

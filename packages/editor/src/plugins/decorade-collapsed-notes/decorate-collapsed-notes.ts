@@ -2,6 +2,8 @@ import { Node, Schema } from "prosemirror-model";
 import { Plugin } from "prosemirror-state";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { isTargetNodeOfType } from "../../editor-utils";
+import { collapseNoteById } from "../../commands/collapse-note-by-id/collapse-note-by-id";
+import { expandNoteById } from "../../commands/expand-note-by-id/expand-note-by-id";
 
 function hasNoteChildren(node: Node, schema: Schema) {
   let hasChildren = false;
@@ -25,23 +27,25 @@ export function createDecorateCollapsedNotesPlugin() {
             decorations.push(
               Decoration.widget(
                 offset,
-                (view, getPos) => {
+                (view) => {
                   const el = document.createElement("div");
                   el.classList.add("note__collapse-widget");
+
                   if (node.attrs.expanded) el.classList.add("note__collapse-widget--expanded");
                   if (!node.attrs.expanded) el.classList.add("note__collapse-widget--collapsed");
-                  // // el.style.top = `${getPos()}px`;
-                  // el.addEventListener("mousedown", () => {
-                  //   if (node.attrs.expanded) {
-                  //     collapseNoteChildren(view.state, view.dispatch);
-                  //   } else {
-                  //     expandNoteChildren(view.state, view.dispatch);
-                  //   }
-                  // });
+
+                  el.addEventListener("mousedown", (event) => {
+                    if (node.attrs.expanded) {
+                      collapseNoteById(node.attrs.id)(view.state, view.dispatch);
+                    } else {
+                      expandNoteById(node.attrs.id)(view.state, view.dispatch);
+                    }
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                  });
                   return el;
                 },
                 {
-                  // key: `${node.attrs.id}-widget`,
                   ignoreSelection: true,
                 }
               )

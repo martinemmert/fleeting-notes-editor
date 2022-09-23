@@ -31,13 +31,15 @@ html, body {
     padding: 0.25rem;
     border-radius: 0.25rem;
     white-space: pre-wrap;
-    list-style-position: outside;
+    //list-style-position: outside;
 }
 
+.ProseMirror ul,
 .ProseMirror p {
     margin: 0;
+    padding: 0;
 }
 
 .ProseMirror li[data-note] {
-    outline: 1px solid red;
+    //outline: 1px solid red;
 }
