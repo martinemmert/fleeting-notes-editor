@@ -7,7 +7,6 @@ import { isTargetNodeOfType, nodeHasAttribute } from "./editor-utils";
 import { Schema } from "prosemirror-model";
 import { AttrStep } from "prosemirror-transform";
 import { Decoration, DecorationSet } from "prosemirror-view";
-import { collapseNoteChildren, expandNoteChildren } from "./editor-commands";
 import { createSkipCollapsedNotesPlugin } from "./plugins/skip-hidden-notes/skip-collapsed-notes";
 import { createDecorateCollapsedNotesPlugin } from "./plugins/decorade-collapsed-notes/decorate-collapsed-notes";
 
@@ -106,19 +105,9 @@ function createAddParentNoteIdPlugin() {
 function preventBrowserShortcuts() {
   return new Plugin({
     props: {
-      handleKeyDown(view, event) {
+      handleKeyDown(_, event) {
         if ((event.metaKey || event.ctrlKey) && event.key === "m") {
           event.preventDefault();
-        }
-        if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === ";") {
-          event.preventDefault();
-          collapseNoteChildren(view.state, view.dispatch);
-          return true;
-        }
-        if ((event.metaKey || event.ctrlKey) && event.shiftKey && event.key === ":") {
-          event.preventDefault();
-          expandNoteChildren(view.state, view.dispatch);
-          return true;
         }
         return false;
       },

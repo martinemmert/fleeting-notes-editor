@@ -10,6 +10,8 @@ import {
   toggleMark,
 } from "prosemirror-commands";
 import {
+  collapseNoteChildren,
+  expandNoteChildren,
   joinNoteBackward,
   joinNoteForward,
   liftNote,
@@ -103,6 +105,8 @@ export function createEditorKeymap(schema?: Schema) {
     "Mod-y": redo,
     Tab: sinkNote,
     "Shift-Tab": liftNote,
+    "Mod-j": collapseNoteChildren,
+    "Mod-k": expandNoteChildren,
   };
 
   map["Mod-Enter"] = toggleNoteCompleteState;
