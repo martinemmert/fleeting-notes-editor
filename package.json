@@ -2,6 +2,7 @@
   "name": "fleet-notes",
   "private": true,
   "devDependencies": {
+    "@prettier/plugin-php": "^0.19.1",
     "prettier": "^2.6.2"
   },
   "workspaces": [
