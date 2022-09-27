@@ -1,4 +1,4 @@
 import { render } from "solid-js/web";
-import { MainView } from "./main-view";
+import { AppView } from "./components/views/app";
 
-render(() => <MainView />, document.getElementById("root") as HTMLElement);
+render(() => <AppView />, document.getElementById("root") as HTMLElement);

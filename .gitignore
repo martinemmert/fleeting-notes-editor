@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 
 coverage
+pocketbase/LICENSE.md
+pocketbase/pocketbase
+pocketbase/pb_data/*
+
+.env
