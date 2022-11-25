@@ -26,7 +26,7 @@ export function createDecorateCollapsedNotesPlugin() {
           ) {
             decorations.push(
               Decoration.widget(
-                offset,
+                offset + 1,
                 (view) => {
                   const el = document.createElement("div");
                   el.classList.add("note__collapse-widget");
