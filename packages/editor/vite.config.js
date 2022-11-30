@@ -3,6 +3,11 @@ import { resolve } from "path";
 import { defineConfig } from "vite";
 
 export default defineConfig({
+  css: {
+    postcss: {
+      plugins: [require("postcss-nested")],
+    },
+  },
   build: {
     lib: {
       entry: resolve(__dirname, "src/index.ts"),

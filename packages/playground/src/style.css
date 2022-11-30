@@ -34,11 +34,7 @@ html, body {
     //list-style-position: outside;
 }
 
-.ProseMirror ul,
-.ProseMirror p {
-    margin: 0;
-    padding: 0;
-}
+
 
 .ProseMirror li[data-note] {
     /*outline: 1px solid red;*/

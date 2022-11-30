@@ -1,54 +1,89 @@
 :root {
     --line-height: 1.25rem;
     --completed-text-color: #acacac;
+    --tag-background-color: #b2e7f3;
+    --tag-background-color-selection: #4394a6;
+}
+
+.ProseMirror ul,
+.ProseMirror p {
+    margin: 0;
+    padding: 0;
+}
+
+.ProseMirror {
+    [data-note] {
+        position: relative;
+        margin: 0 0 0.5rem 3rem;
+        line-height: var(--line-height);
+        font-weight: 500;
+
+        & > ul {
+            margin-top: 0.5rem;
+        }
+
+        &:not(.note--focused):has(> .note_text > .ProseMirror-trailingBreak)::marker {
+            content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' style='position: relative; top: 2px; left: -2px; opacity: 0.1'  width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3e%3cpolyline points='9 18 15 12 9 6'%3e%3c/polyline%3e%3c/svg%3e");
+        }
+
+        &.note--focused,
+        &:has(> .note_text):not(:has(> .note_text > .ProseMirror-trailingBreak)) {
+            &::marker {
+                content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' style='position: relative; top: 2px; left: -2px; opacity: 0.4'  width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3e%3cpolyline points='9 18 15 12 9 6'%3e%3c/polyline%3e%3c/svg%3e");
+            }
+        }
+
+        &[data-completed] {
+            text-decoration: line-through;
+            color: var(--completed-text-color);
+
+            &:not(:has(> .note_text > .ProseMirror-trailingBreak))::marker {
+                content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' style='position: relative; top: 2px; left: -2px; opacity: 0.4' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
+            }
+        }
+    }
+
+
+    .note__collapse-widget {
+        position: absolute;
+        display: block;
+        width: 1rem;
+        height: 1rem;
+        left: -2.5rem;
+        top: 1px;
+        z-index: 10;
+        user-select: none;
+
+        &--collapsed {
+            content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3e%3ccircle cx='12' cy='12' r='10'%3e%3c/circle%3e%3cline x1='12' y1='8' x2='12' y2='16'%3e%3c/line%3e%3cline x1='8' y1='12' x2='16' y2='12'%3e%3c/line%3e%3c/svg%3e");
+            opacity: 75%;
+        }
+
+        &--expanded {
+            content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3e%3crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3e%3c/rect%3e%3cline x1='8' y1='12' x2='16' y2='12'%3e%3c/line%3e%3c/svg%3e");
+            opacity: 75%;
+        }
+    }
+
+
+    [data-tag] {
+        display: inline;
+        background: var(--tag-background-color);
+        border-radius: 5px;
+        padding: 2px 0 1px;
+        font-style: normal;
+
+        &::selection {
+            color: white;
+            background: var(--tag-background-color-selection);
+        }
+
+        &:before,
+        &:after {
+            content: ' ';
+            display: inline;
+        }
+    }
 }
 
 
-[data-note] {
-    position: relative;
-    margin: 0 0 0.5rem 3rem;
-    line-height: var(--line-height);
-    font-weight: 500;
-}
-
-[data-note] > ul {
-    margin-top: 0.5rem;
-}
-
-[data-note]:not(.note--focused):has(> .note_text > .ProseMirror-trailingBreak)::marker {
-    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' style='position: relative; top: 2px; left: -2px; opacity: 0.1'  width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3e%3cpolyline points='9 18 15 12 9 6'%3e%3c/polyline%3e%3c/svg%3e");
-}
-
-[data-note].note--focused::marker,
-[data-note]:has(> .note_text):not(:has(> .note_text > .ProseMirror-trailingBreak))::marker {
-    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' style='position: relative; top: 2px; left: -2px; opacity: 0.4'  width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3e%3cpolyline points='9 18 15 12 9 6'%3e%3c/polyline%3e%3c/svg%3e");
-}
-
-[data-note][data-completed]:not(:has(> .note_text > .ProseMirror-trailingBreak))::marker {
-    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' style='position: relative; top: 2px; left: -2px; opacity: 0.4' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
-}
-
-[data-note][data-completed] {
-    text-decoration: line-through;
-    color: var(--completed-text-color);
-}
-
-.note__collapse-widget {
-    position: absolute;
-    display: block;
-    width: 1rem;
-    height: 1rem;
-    left: -2.5rem;
-    top: 1px;
-    z-index: 10;
-}
-
-.note__collapse-widget--collapsed {
-    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3e%3ccircle cx='12' cy='12' r='10'%3e%3c/circle%3e%3cline x1='12' y1='8' x2='12' y2='16'%3e%3c/line%3e%3cline x1='8' y1='12' x2='16' y2='12'%3e%3c/line%3e%3c/svg%3e");
-    opacity: 75%;
-}
-
-.note__collapse-widget--expanded {
-    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3e%3crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3e%3c/rect%3e%3cline x1='8' y1='12' x2='16' y2='12'%3e%3c/line%3e%3c/svg%3e");
-    opacity: 75%;
-}
