@@ -1,12 +1,16 @@
 import { createEditorView } from "./editor-view";
 import { createEditorState } from "./editor-state";
-import { Node } from "prosemirror-model";
 import mitt from "mitt";
 import { Events } from "./editor-plugins";
+import { createHashtagsPlugin } from "./plugins/hashtags/hashtags";
 
-export function createEditor(element: HTMLElement, doc?: Node | {}) {
+export function createEditor(element: HTMLElement, documentState?: any) {
   const eventEmitter = mitt<Events>();
-  const state = createEditorState(doc, eventEmitter);
-  const view = createEditorView(element, state);
-  return { view, emitter: eventEmitter, state };
+  const editorState = createEditorState(documentState, eventEmitter);
+  const view = createEditorView(element, editorState);
+  return { view, emitter: eventEmitter, state: editorState };
 }
+
+export const Plugins = {
+  Hashtag: createHashtagsPlugin(),
+};

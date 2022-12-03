@@ -4,11 +4,13 @@ import { Emitter } from "mitt";
 import { EditorState, Plugin, Transaction } from "prosemirror-state";
 import { nanoid } from "nanoid";
 import { isTargetNodeOfType, nodeHasAttribute } from "./editor-utils";
-import { Schema } from "prosemirror-model";
+import { Attrs, Schema } from "prosemirror-model";
 import { AttrStep } from "prosemirror-transform";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { createSkipCollapsedNotesPlugin } from "./plugins/skip-hidden-notes/skip-collapsed-notes";
 import { createDecorateCollapsedNotesPlugin } from "./plugins/decorade-collapsed-notes/decorate-collapsed-notes";
+import { buildInputRules } from "./input-rules";
+import { createHashtagsPlugin } from "./plugins/hashtags/hashtags";
 
 export type Events = {
   update: {
@@ -20,6 +22,7 @@ export type Events = {
   blocked_input_info: {
     reason: "note_completed";
   };
+  "note:updated": Attrs;
 };
 
 function createUpdateEmitter(emitter: Emitter<Events>) {
@@ -153,7 +156,7 @@ function decorateCurrentNote() {
   });
 }
 
-export function createEditorPluginsArray(emitter?: Emitter<Events>, schema?: Schema) {
+export function createEditorPluginsArray(schema: Schema, emitter?: Emitter<Events>) {
   const plugins = [
     createEditorKeymap(schema),
     createSkipCollapsedNotesPlugin(),
@@ -163,6 +166,7 @@ export function createEditorPluginsArray(emitter?: Emitter<Events>, schema?: Sch
     createAddParentNoteIdPlugin(),
     decorateCurrentNote(),
     createDecorateCollapsedNotesPlugin(),
+    createHashtagsPlugin(emitter),
     history(),
   ];
   if (emitter) plugins.push(createUpdateEmitter(emitter));

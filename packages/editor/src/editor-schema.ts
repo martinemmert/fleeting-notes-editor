@@ -10,8 +10,10 @@ const createAttributeGetter = (attributes: string[]) => (dom: string | HTMLEleme
   return attr;
 };
 
-const createAttributes = (attributes: Record<string, string | number | boolean | null>) => {
-  const attr: Record<string, { default: string | number | boolean | null }> = {};
+const createAttributes = (
+  attributes: Record<string, string | string[] | number | boolean | null>
+) => {
+  const attr: Record<string, { default: string | string[] | number | boolean | null }> = {};
   for (const [key, value] of Object.entries(attributes)) {
     attr[key] = { default: value };
   }
@@ -29,15 +31,16 @@ export function createEditorSchema() {
           parent: null,
           completed: null,
           expanded: true,
+          tags: null,
         }),
         parseDOM: [
           {
             tag: "li[data-note]",
-            getAttrs: createAttributeGetter(["id", "note", "parent", "completed"]),
+            getAttrs: createAttributeGetter(["id", "note", "parent", "completed", "tags"]),
           },
         ],
         toDOM(node) {
-          const { id, note, completed, expanded } = node.attrs;
+          const { id, note, completed, expanded, tags } = node.attrs;
           return [
             "li",
             {
@@ -45,13 +48,14 @@ export function createEditorSchema() {
               "data-note": note,
               "data-completed": completed ? "" : null,
               "data-expanded": expanded ? "" : null,
+              "data-tags": tags?.join(";") ?? null,
             },
             0,
           ];
         },
       },
       note_text: {
-        content: "text*",
+        content: "(text)*",
         marks: "_",
         parseDOM: [{ tag: "p" }],
         toDOM() {

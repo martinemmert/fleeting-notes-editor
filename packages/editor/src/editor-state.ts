@@ -1,27 +1,46 @@
 import { Node } from "prosemirror-model";
-import { EditorState, EditorStateConfig } from "prosemirror-state";
+import { EditorState } from "prosemirror-state";
 import { createEditorPluginsArray, Events } from "./editor-plugins";
 import { createEditorSchema } from "./editor-schema";
 import { Emitter } from "mitt";
+import { Plugins } from "./index";
 
-export function createEditorState(
-  doc?: Node | {},
-  eventEmitter?: Emitter<Events>,
-  config?: Omit<EditorStateConfig, "doc" | "schema"> | {}
-) {
+export function createEditorState(documentState?: any, eventEmitter?: Emitter<Events>) {
   const schema = createEditorSchema();
-  let initialDoc = doc;
+  const plugins = createEditorPluginsArray(schema, eventEmitter);
+  const config = { schema, plugins };
 
-  if (doc && !(doc instanceof Node)) {
-    initialDoc = Node.fromJSON(schema, doc);
+  let state: EditorState;
+
+  if (
+    documentState &&
+    documentState.hasOwnProperty("doc") &&
+    documentState.hasOwnProperty("hashtags")
+  ) {
+    if (!documentState.selection) {
+      documentState.selection = {
+        type: "text",
+        anchor: 2,
+        head: 2,
+      };
+    }
+
+    state = EditorState.fromJSON(config, documentState, {
+      hashtags: Plugins.Hashtag,
+    });
+  } else {
+    let initialDoc;
+
+    if (documentState instanceof Node) {
+      initialDoc = documentState;
+    }
+
+    if (documentState?.hasOwnProperty("type") && documentState.type === "doc") {
+      initialDoc = Node.fromJSON(schema, documentState);
+    }
+
+    state = EditorState.create({ doc: initialDoc, ...config });
   }
-
-  const state = EditorState.create({
-    doc: initialDoc as Node,
-    plugins: createEditorPluginsArray(eventEmitter, schema),
-    schema,
-    ...config,
-  });
 
   return state.apply(state.tr.setMeta("__init__", true));
 }

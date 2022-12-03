@@ -1,5 +1,6 @@
 import { Emitter } from "mitt";
 import { EditorState } from "prosemirror-state";
+import { Plugins } from "@fleeting-notes/editor";
 
 export async function createJSONView(
   element: HTMLElement,
@@ -7,9 +8,7 @@ export async function createJSONView(
   state: EditorState
 ) {
   const { default: highlight } = await import("highlight.js");
-  const { default: jsonHighlighter } = await import(
-    "highlight.js/lib/languages/json"
-  );
+  const { default: jsonHighlighter } = await import("highlight.js/lib/languages/json");
 
   highlight.registerLanguage("json", jsonHighlighter);
 
@@ -25,14 +24,20 @@ export async function createJSONView(
   }
 
   emitter.on("update", (props) => {
-    const json = props.newState.toJSON();
+    const json = props.newState.toJSON({
+      hashtags: Plugins.Hashtag,
+    });
     code.innerHTML = highlightCode(json);
   });
 
   pre.append(code);
   element.append(pre);
 
-  code.innerHTML = highlightCode(state.toJSON());
+  code.innerHTML = highlightCode(
+    state.toJSON({
+      hashtags: Plugins.Hashtag,
+    })
+  );
 
   return pre;
 }

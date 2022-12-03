@@ -6,18 +6,30 @@ export const emptyDoc = {
       attrs: {
         note: "note",
         parent: null,
+        id: "PXKF6nSN2op2Xnu1",
+        tags: ["hashtag"],
       },
       content: [
         {
           type: "note_text",
-          content: [],
+          content: [
+            {
+              type: "text",
+              text: "asdad #hashtag",
+            },
+          ],
         },
       ],
     },
   ],
 };
 
-export const state = { doc: emptyDoc };
+export const state = {
+  doc: emptyDoc,
+  hashtags: {
+    PXKF6nSN2op2Xnu1: ["hashtag"],
+  },
+};
 
 export function update(doc: any) {
   state.doc = doc;
