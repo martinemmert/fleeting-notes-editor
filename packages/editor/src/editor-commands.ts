@@ -2,6 +2,7 @@ import { AllSelection, Command, TextSelection } from "prosemirror-state";
 import { Fragment, Node, NodeRange, Slice } from "prosemirror-model";
 import { isTargetNodeOfType, mapChildren, positionAtEnd } from "./editor-utils";
 import { canSplit, liftTarget, ReplaceAroundStep, ReplaceStep } from "prosemirror-transform";
+import { findParentNodeOfType } from "./utils/find-parent-node-of-type";
 
 export const splitNote: Command = (state, dispatch) => {
   const { $from } = state.selection;
@@ -69,7 +70,13 @@ export const splitNote: Command = (state, dispatch) => {
       tr.split($from.pos, 2);
       tr.setNodeMarkup($from.pos - 2, undefined, { id: null });
     } else {
-      tr.split($from.pos, 2, [{ type: noteType, attrs: { id: null } }]);
+      const parentNote = findParentNodeOfType($from, state.schema.nodes.note);
+      tr.split($from.pos, 2, [
+        {
+          type: noteType,
+          attrs: { id: null, expanded: parentNote?.attrs.expanded },
+        },
+      ]);
     }
 
     tr.scrollIntoView();

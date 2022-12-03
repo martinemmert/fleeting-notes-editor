@@ -9,7 +9,6 @@ import { AttrStep } from "prosemirror-transform";
 import { Decoration, DecorationSet } from "prosemirror-view";
 import { createSkipCollapsedNotesPlugin } from "./plugins/skip-hidden-notes/skip-collapsed-notes";
 import { createDecorateCollapsedNotesPlugin } from "./plugins/decorade-collapsed-notes/decorate-collapsed-notes";
-import { buildInputRules } from "./input-rules";
 import { createHashtagsPlugin } from "./plugins/hashtags/hashtags";
 
 export type Events = {
