@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+
+  pocketbase:
+    build:
+      dockerfile: Dockerfile
+      args:
+        PB_VERSION: ${POCKETBASE_VERSION:-0.8.0}
+    environment:
+      PB_ENCRYPTION_KEY: Foobar
+    volumes:
+      - ./pocketbase/pb_data:/pb/pb_data
+    ports:
+      - 8080:8080
+
+networks:
+  default:
