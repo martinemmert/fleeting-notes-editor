@@ -1,0 +1,8 @@
+/*noinspection CssUnknownTarget*/
+@import url("https://use.typekit.net/oep3jfg.css");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[x-cloak] { display: none !important; }

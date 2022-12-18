@@ -1,7 +1,7 @@
-import { createEditorView } from "./editor-view";
-import { createEditorState } from "./editor-state";
 import mitt from "mitt";
 import { Events } from "./editor-plugins";
+import { createEditorState } from "./editor-state";
+import { createEditorView } from "./editor-view";
 import { createHashtagsPlugin } from "./plugins/hashtags/hashtags";
 
 export function createEditor(element: HTMLElement, documentState?: any) {
@@ -11,6 +11,8 @@ export function createEditor(element: HTMLElement, documentState?: any) {
   return { view, emitter: eventEmitter, state: editorState };
 }
 
-export const Plugins = {
+const Plugins = {
   Hashtag: createHashtagsPlugin(),
 };
+
+export { createEditorState, Plugins };

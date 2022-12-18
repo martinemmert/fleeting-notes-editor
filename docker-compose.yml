@@ -8,11 +8,12 @@ services:
       args:
         PB_VERSION: ${POCKETBASE_VERSION:-0.8.0}
     environment:
-      PB_ENCRYPTION_KEY: Foobar
+      PB_ENCRYPTION_KEY: Foobar123456Foobar123456Foobar12
     volumes:
       - ./pocketbase/pb_data:/pb/pb_data
     ports:
       - 8080:8080
+      - 8090:8090
 
 networks:
   default:

@@ -1,0 +1,165 @@
+---
+import PocketBase, { ClientResponseError } from "pocketbase";
+import WebsiteShell from "../../layouts/website-shell.astro";
+
+// let loginFailed = false;
+let email: string | null = "";
+
+let errors: Record<string, { code: string; message: string }> | undefined;
+let success = false;
+
+async function signUp(email: string, password: string) {
+  const pb = new PocketBase(import.meta.env.PUBLIC_POCKETBASE_URL);
+  errors = undefined;
+  success = false;
+
+  try {
+    return await pb.collection("users").create({
+      email,
+      password,
+      passwordConfirm: password,
+    });
+  } catch (e) {
+    if (e instanceof ClientResponseError) {
+      if (e.status) {
+        errors = e.data.data;
+      }
+    }
+
+    return null;
+  }
+}
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  email = formData.get("email") as string | null;
+  const password = formData.get("password");
+
+  if (typeof email === "string" && typeof password === "string") {
+    const user = await signUp(email, password);
+    if (user) success = true;
+  }
+}
+---
+
+<WebsiteShell>
+  <article class="flex items-center min-h-full">
+    <section class="container max-w-lg mx-auto space-y-8">
+      <header>
+        {!success && <h1 class="text-4xl font-bold text-center">Create new account</h1>}
+      </header>
+      {
+        errors && (
+          <div class="alert alert-warning shadow-lg">
+            <div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="stroke-current flex-shrink-0 h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <span>We could not create an account for you.</span>
+            </div>
+          </div>
+        )
+      }
+      {
+        success && (
+          <div class="alert alert-success shadow-lg mb-4">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="stroke-current flex-shrink-0 h-6 w-6"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            <span>Welcome on board! We sent you an email to confirm your account!</span>
+          </div>
+        )
+      }
+      {
+        !success && (
+          <form id="login-form" method="post">
+            <fieldset class="space-y-3">
+              <div class="form-control w-full">
+                <label class="label">
+                  <span class="label-text">E-Mail Address</span>
+                </label>
+                <input
+                  type="email"
+                  name="email"
+                  value={email}
+                  placeholder="max@mustermann.de"
+                  required
+                  class:list={[
+                    "input input-bordered w-full",
+                    {
+                      "input-error": errors?.email,
+                    },
+                  ]}
+                />
+                {errors?.email && (
+                  <label class="label-text text-error text-right">{errors?.email?.message}</label>
+                )}
+              </div>
+              <div class="form-control w-full">
+                <label class="label">
+                  <span class="label-text">Password</span>
+                </label>
+                <input
+                  type="password"
+                  name="password"
+                  placeholder="Your Password"
+                  class="input input-bordered w-full"
+                  required
+                />
+              </div>
+            </fieldset>
+            <div class="form-control w-full mt-6">
+              <button type="submit" class="btn btn-primary">
+                SIGN UP FOR FREE
+              </button>
+            </div>
+          </form>
+        )
+      }
+      {
+        !success && (
+          <>
+            <div class="divider w-full">already have an account?</div>
+            <div class="form-control w-full">
+              <a href="/account/sign-in" class="btn btn-outline">
+                SIGN IN
+              </a>
+            </div>
+          </>
+        )
+      }
+      {
+        success && (
+          <>
+            <div class="divider w-full" />
+            <div class="form-control w-full">
+              <a href="/account/sign-in" class="btn btn-outline">
+                SIGN IN
+              </a>
+            </div>
+          </>
+        )
+      }
+    </section>
+  </article>
+</WebsiteShell>

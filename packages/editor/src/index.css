@@ -12,6 +12,9 @@
 }
 
 .ProseMirror {
+    outline: none;
+    white-space: pre-wrap;
+
     [data-note] {
         position: relative;
         margin: 0 0 0.5rem 3rem;

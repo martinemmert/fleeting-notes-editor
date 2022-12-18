@@ -14,7 +14,6 @@ import { createHashtagsPlugin } from "./plugins/hashtags/hashtags";
 export type Events = {
   update: {
     tr: Transaction;
-    value: unknown;
     oldState: EditorState;
     newState: EditorState;
   };
@@ -28,9 +27,9 @@ function createUpdateEmitter(emitter: Emitter<Events>) {
   return new Plugin({
     state: {
       init: () => {},
-      apply: (tr, value, oldState, newState) => {
+      apply: (tr, _, oldState, newState) => {
         if (!tr.docChanged) return;
-        emitter.emit("update", { tr, value, oldState, newState });
+        emitter.emit("update", { tr, oldState, newState });
       },
     },
   });

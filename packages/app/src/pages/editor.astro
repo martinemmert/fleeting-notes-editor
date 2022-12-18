@@ -1,0 +1,35 @@
+---
+import EditorView from "../editor/views/editor";
+import AppShell from "../layouts/app-shell.astro";
+import { redirectToLoginIfNotAuthenticated } from "../lib/auth/redirect-to-login-if-not-authenticated";
+
+const redirectToLogin = await redirectToLoginIfNotAuthenticated(Astro);
+
+if (redirectToLogin) return redirectToLogin;
+---
+
+<AppShell>
+  <div class="min-h-full p-4 dark:bg-gray-900 bg-slate-100">
+    <div
+      id="editor"
+      class="pt-4 pb-3 container max-w-6xl mx-auto dark:bg-zinc-700/50 dark:text-gray-200 bg-slate-200/50 rounded-lg"
+    >
+      <EditorView client:only="solid-js" />
+    </div>
+  </div>
+</AppShell>
+
+<script>
+  import { pb, refreshAuthCookie, validateServerSession } from "../editor/lib/api-client";
+  import editorStore from "../editor/lib/editor-store";
+  import { SIGN_IN_URL } from "../global";
+
+  await validateServerSession();
+
+  editorStore.initialize(pb());
+
+  pb().authStore.onChange((token: string) => {
+    if (token) refreshAuthCookie(token);
+    else location.href = SIGN_IN_URL;
+  });
+</script>

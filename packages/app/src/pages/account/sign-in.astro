@@ -1,0 +1,106 @@
+---
+import PocketBase from "pocketbase";
+import WebsiteShell from "../../layouts/website-shell.astro";
+import { redirectToLoginIfNotAuthenticated } from "../../lib/auth/redirect-to-login-if-not-authenticated";
+import { setAuthCookie } from "../../lib/auth/set-auth-cookie";
+
+let loginFailed = false;
+let email: string | null = "";
+
+async function login(email: string, password: string) {
+  const pb = new PocketBase(import.meta.env.PUBLIC_POCKETBASE_URL);
+  try {
+    return await pb.collection("users").authWithPassword(email, password);
+  } catch (e) {
+    return null;
+  }
+}
+
+if (Astro.request.method === "POST") {
+  const formData = await Astro.request.formData();
+  email = formData.get("email") as string | null;
+  const password = formData.get("password");
+
+  if (typeof email === "string" && typeof password === "string") {
+    const user = await login(email, password);
+
+    if (user) {
+      setAuthCookie(Astro, user.token);
+      return Astro.redirect(`/${Astro.url.searchParams.get("r") ?? ""}`, 302);
+    }
+
+    loginFailed = true;
+  }
+}
+
+if (Astro.request.method === "GET") redirectToLoginIfNotAuthenticated(Astro);
+---
+
+<WebsiteShell>
+  <article class="flex items-center min-h-full">
+    <section class="container max-w-lg mx-auto space-y-8">
+      <header>
+        <h1 class="text-4xl font-bold text-center">Welcome back!</h1>
+      </header>
+      {
+        loginFailed && (
+          <div class="alert alert-warning shadow-lg mb-4">
+            <div>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="stroke-current flex-shrink-0 h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                />
+              </svg>
+              <span>Could not sign in with the provided credentials!</span>
+            </div>
+          </div>
+        )
+      }
+      <form id="login-form" method="post">
+        <fieldset class="space-y-3">
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text">E-Mail Address</span>
+            </label>
+            <input
+              type="email"
+              name="email"
+              value={email}
+              placeholder="max@mustermann.de"
+              class="input input-bordered w-full"
+            />
+          </div>
+          <div class="form-control w-full">
+            <label class="label">
+              <span class="label-text">Password</span>
+            </label>
+            <input
+              type="password"
+              name="password"
+              placeholder="Your Password"
+              class="input input-bordered w-full"
+            />
+          </div>
+          <div class="mt-2 text-right w-full">
+            <a href="/account/recover-password" class="text-sm hover:text-info">recover password</a>
+          </div>
+        </fieldset>
+        <div class="form-control w-full mt-4">
+          <button type="submit" class="btn btn-primary">SIGN IN</button>
+        </div>
+      </form>
+      <div class="divider w-full">don't have an account?</div>
+      <div class="form-control w-full">
+        <a href="/account/sign-up" class="btn btn-outline">SIGN UP FOR FREE</a>
+      </div>
+    </section>
+  </article>
+</WebsiteShell>
