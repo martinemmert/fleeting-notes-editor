@@ -4,9 +4,15 @@
   "devDependencies": {
     "prettier": "^2.6.2"
   },
+  "scripts": {
+    "build": "npm run build -w @fleeting-notes/app"
+  },
   "workspaces": [
     "packages/editor",
     "packages/app",
     "packages/playground"
-  ]
+  ],
+  "volta": {
+    "node": "18.12.1"
+  }
 }

@@ -1,0 +1,4 @@
+{
+  "outputDirectory": "packages/app/.vercel/output",
+  "rootDirectory": "packages/app"
+}
