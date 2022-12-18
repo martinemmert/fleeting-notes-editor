@@ -1,6 +1,6 @@
 import PocketBase, { Record } from "pocketbase";
 import { Node } from "prosemirror-model";
-import { createMemo, createSignal } from "solid-js";
+import { createSignal } from "solid-js";
 import { getCurrentUserId } from "./api-client";
 import EmptyDoc from "./empty-doc.json";
 

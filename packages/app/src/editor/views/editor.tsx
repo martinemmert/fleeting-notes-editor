@@ -33,7 +33,6 @@ export default function EditorView() {
       const currentState = currentEditorState.toJSON({
         hashtags: Plugins.Hashtag,
       });
-      console.log(currentState.hashtags)
       editorStore.updateCurrentDocument(pb(), currentState.doc, currentState.hashtags);
     }
     timeout = window.setTimeout(saveEditorState, SAVE_EDITOR_INTERVAL);

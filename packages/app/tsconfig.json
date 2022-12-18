@@ -2,9 +2,7 @@
   "extends": "../tsconfig.shared.json",
   "compilerOptions": {
     "jsx": "preserve",
-    "jsxImportSource": "solid-js",
-    "types": ["@types/alpinejs"]
+    "jsxImportSource": "solid-js"
   },
-
   "include": ["src"]
 }

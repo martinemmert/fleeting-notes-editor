@@ -12,10 +12,9 @@
     "autoprefixer": "^10.4.8"
   },
   "dependencies": {
-    "@astrojs/alpinejs": "^0.1.2",
     "@astrojs/solid-js": "^1.2.3",
     "@astrojs/tailwind": "^2.1.3",
-    "@types/alpinejs": "^3.7.1",
+    "@astrojs/vercel": "^2.3.6",
     "astro": "^1.6.12",
     "daisyui": "^2.42.1",
     "es-cookie": "^1.4.0",
