@@ -1,8 +1,30 @@
-/*noinspection CssUnknownTarget*/
-@import url("https://use.typekit.net/oep3jfg.css");
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-[x-cloak] { display: none !important; }
+[x-cloak] {
+    display: none !important;
+}
+
+html {
+    font-family: Monaco, "Andale Mono", monospace;
+    text-rendering: geometricPrecision;
+}
+
+.editor {
+    --completed-text-color: hsl(var(--bc) / 0.25);
+
+    --tag-text-color: hsl(var(--in));
+    --tag-background-color: hsl(var(--inc) / 0.25);
+    --tag-text-color-hover: hsl(var(--in));
+    --tag-background-color-hover: hsl(var(--inc));
+    --tag-text-color-selection: hsl(var(--inc));
+    --tag-background-color-selection: hsl(var(--in));
+
+    --marked-text-color: hsl(var(--wac));
+    --marked-background-color: hsl(var(--wa));
+    --marked-text-color-hover: hsl(var(--wac));
+    --marked-background-color-hover: hsl(var(--wa));
+    --marked-text-color-selection: hsl(var(--wa));
+    --marked-background-color-selection: hsl(var(--wac));
+}

@@ -10,6 +10,7 @@ import { Decoration, DecorationSet } from "prosemirror-view";
 import { createSkipCollapsedNotesPlugin } from "./plugins/skip-hidden-notes/skip-collapsed-notes";
 import { createDecorateCollapsedNotesPlugin } from "./plugins/decorade-collapsed-notes/decorate-collapsed-notes";
 import { createHashtagsPlugin } from "./plugins/hashtags/hashtags";
+import { createDecorateNotesPlugin } from "./plugins/decorade-notes/decorate-notes";
 
 export type Events = {
   update: {
@@ -164,6 +165,7 @@ export function createEditorPluginsArray(schema: Schema, emitter?: Emitter<Event
     createAddParentNoteIdPlugin(),
     decorateCurrentNote(),
     createDecorateCollapsedNotesPlugin(),
+    createDecorateNotesPlugin(),
     createHashtagsPlugin(emitter),
     history(),
   ];

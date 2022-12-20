@@ -1,7 +1,22 @@
 :root {
-    --line-height: 1.25rem;
+    --line-height: 1.3rem;
+    --font-size: 1rem;
     --completed-text-color: #acacac;
+
+
+    --marked-text-color: black;
+    --marked-background-color: yellow;
+    --marked-text-color-hover: black;
+    --marked-background-color-hover: yellow;
+    --marked-text-color-selection: black;
+    --marked-background-color-selection: yellow;
+
+    --tag-border-radius: 5px;
+    --tag-text-color: white;
     --tag-background-color: #b2e7f3;
+    --tag-text-color-hover: white;
+    --tag-background-color-hover: #b2e7f3;
+    --tag-text-color-selection: white;
     --tag-background-color-selection: #4394a6;
 }
 
@@ -12,36 +27,42 @@
 }
 
 .ProseMirror {
-    outline: none;
     white-space: pre-wrap;
+    outline: none;
 
     [data-note] {
+        font-weight: 500;
+        font-size: var(--font-size);
+        line-height: var(--line-height);
         position: relative;
         margin: 0 0 0.5rem 3rem;
-        line-height: var(--line-height);
-        font-weight: 500;
 
         & > ul {
             margin-top: 0.5rem;
         }
 
-        &:not(.note--focused):has(> .note_text > .ProseMirror-trailingBreak)::marker {
-            content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' style='position: relative; top: 2px; left: -2px; opacity: 0.1'  width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3e%3cpolyline points='9 18 15 12 9 6'%3e%3c/polyline%3e%3c/svg%3e");
-        }
+        &[data-completed] {
+            color: var(--completed-text-color);
 
-        &.note--focused,
-        &:has(> .note_text):not(:has(> .note_text > .ProseMirror-trailingBreak)) {
-            &::marker {
-                content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' style='position: relative; top: 2px; left: -2px; opacity: 0.4'  width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' %3e%3cpolyline points='9 18 15 12 9 6'%3e%3c/polyline%3e%3c/svg%3e");
+            .note_text {
+                text-decoration-style: solid;
+                text-decoration-line: line-through;
+                text-decoration-thickness: 3px;
             }
         }
 
-        &[data-completed] {
-            text-decoration: line-through;
-            color: var(--completed-text-color);
+        .note_text mark {
+            color: var(--marked-text-color);
+            background: var(--marked-background-color);
 
-            &:not(:has(> .note_text > .ProseMirror-trailingBreak))::marker {
-                content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' style='position: relative; top: 2px; left: -2px; opacity: 0.4' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='20 6 9 17 4 12'%3e%3c/polyline%3e%3c/svg%3e");
+            &:hover {
+                color: var(--marked-text-color-hover);
+                background: var(--marked-background-color-hover);
+            }
+
+            &::selection {
+                color: var(--marked-text-color-selection);
+                background: var(--marked-background-color-selection);
             }
         }
     }
@@ -49,42 +70,58 @@
 
     .note__collapse-widget {
         position: absolute;
-        display: block;
-        width: 1rem;
-        height: 1rem;
-        left: -2.5rem;
-        top: 1px;
         z-index: 10;
+        top: 1px;
+        left: -2.5rem;
+        display: block;
+        width: 1.125rem;
+        height: 1.125rem;
         user-select: none;
+        opacity: 40%;
 
         &--collapsed {
-            content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3e%3ccircle cx='12' cy='12' r='10'%3e%3c/circle%3e%3cline x1='12' y1='8' x2='12' y2='16'%3e%3c/line%3e%3cline x1='8' y1='12' x2='16' y2='12'%3e%3c/line%3e%3c/svg%3e");
-            opacity: 75%;
+            cursor: ns-resize;
         }
 
         &--expanded {
-            content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3e%3crect x='3' y='3' width='18' height='18' rx='2' ry='2'%3e%3c/rect%3e%3cline x1='8' y1='12' x2='16' y2='12'%3e%3c/line%3e%3c/svg%3e");
-            opacity: 75%;
+            cursor: row-resize;
         }
+    }
+
+    .note__marker-widget {
+        position: absolute;
+        z-index: 10;
+        top: 3px;
+        left: -1.1rem;
+        display: block;
+        width: 0.875rem;
+        height: 0.875rem;
+        user-select: none;
     }
 
 
     [data-tag] {
-        display: inline;
-        background: var(--tag-background-color);
-        border-radius: 5px;
-        padding: 2px 0 1px;
         font-style: normal;
+        display: inline;
+        padding: 2px 0 1px;
+        color: var(--tag-text-color);
+        border-radius: var(--tag-border-radius, 5px);
+        background: var(--tag-background-color);
+
+        &:hover {
+            color: var(--tag-text-color-hover);
+            background: var(--tag-background-color-hover);
+        }
 
         &::selection {
-            color: white;
+            color: var(--tag-text-color-selection);
             background: var(--tag-background-color-selection);
         }
 
         &:before,
         &:after {
-            content: ' ';
             display: inline;
+            content: ' ';
         }
     }
 }

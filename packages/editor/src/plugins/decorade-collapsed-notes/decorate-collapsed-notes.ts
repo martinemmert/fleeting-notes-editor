@@ -28,13 +28,23 @@ export function createDecorateCollapsedNotesPlugin() {
               Decoration.widget(
                 offset + 1,
                 (view) => {
-                  const el = document.createElement("div");
-                  el.classList.add("note__collapse-widget");
+                  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                  const use = document.createElementNS("http://www.w3.org/2000/svg", "use");
+                  svg.classList.add("note__collapse-widget");
 
-                  if (node.attrs.expanded) el.classList.add("note__collapse-widget--expanded");
-                  if (!node.attrs.expanded) el.classList.add("note__collapse-widget--collapsed");
+                  if (node.attrs.expanded) {
+                    svg.classList.add("note__collapse-widget--expanded");
+                    use.setAttribute("href", "#minus-square");
+                  }
 
-                  el.addEventListener("mousedown", (event) => {
+                  if (!node.attrs.expanded) {
+                    svg.classList.add("note__collapse-widget--collapsed");
+                    use.setAttribute("href", "#plus-circle");
+                  }
+
+                  svg.append(use);
+
+                  svg.addEventListener("mousedown", (event) => {
                     if (node.attrs.expanded) {
                       collapseNoteById(node.attrs.id)(view.state, view.dispatch);
                     } else {
@@ -43,10 +53,13 @@ export function createDecorateCollapsedNotesPlugin() {
                     event.preventDefault();
                     event.stopImmediatePropagation();
                   });
-                  return el;
+                  return svg;
                 },
                 {
                   ignoreSelection: true,
+                  key: node.attrs.expanded
+                    ? `${node.attrs.id}--expanded`
+                    : `${node.attrs.id}--collapsed`,
                 }
               )
             );
