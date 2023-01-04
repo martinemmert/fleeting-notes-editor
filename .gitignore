@@ -30,3 +30,4 @@ pocketbase/pb_data/*
 
 .env
 *.vercel
+*.netlify
