@@ -1,0 +1,37 @@
+---
+import MainView from "../../editor/views/main";
+import AppShell from "../../layouts/app-shell.astro";
+import { redirectToLoginIfNotAuthenticated } from "../../lib/auth/redirect-to-login-if-not-authenticated";
+
+const redirectToLogin = await redirectToLoginIfNotAuthenticated(Astro);
+
+if (redirectToLogin) return redirectToLogin;
+
+const { documentId } = Astro.params;
+
+---
+
+<AppShell>
+  <MainView client:only="solid-js" />
+</AppShell>
+
+<script is:inline id="js_data" data-document-id={documentId}>
+    const el = document.getElementById("js_data");
+    window.js_data = window.js_data || {};
+    window.js_data['documentId'] = el.dataset.documentId;
+</script>
+
+<script>
+  import { pb, refreshAuthCookie, validateServerSession } from "../../editor/lib/api-client";
+  import DocumentCollection from "../../editor/lib/document-collection";
+  import { SIGN_IN_URL } from "../../global";
+
+  await validateServerSession();
+
+  DocumentCollection.actions.initialize(pb(), window.js_data['documentId']);
+
+  pb().authStore.onChange((token: string) => {
+    if (token) refreshAuthCookie(token);
+    else location.href = SIGN_IN_URL;
+  });
+</script>

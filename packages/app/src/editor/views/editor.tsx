@@ -1,61 +1,88 @@
 import { createEditor, createEditorState, Plugins } from "@fleeting-notes/editor";
-import { EditorState } from "prosemirror-state";
-import { createEffect, createMemo, observable, onCleanup } from "solid-js";
+import { createEffect, onCleanup, untrack } from "solid-js";
 import { SAVE_EDITOR_INTERVAL } from "../../global";
 import { pb } from "../lib/api-client";
-import editorStore from "../lib/editor-store";
+import DocumentsCollection from "../lib/document-collection";
+import DocumentCollection from "../lib/document-collection";
+import { useNavigate, useParams } from "@solidjs/router";
+import { unwrap } from "solid-js/store";
 
 type Editor = ReturnType<typeof createEditor>;
+
+type EditorParams = { id?: string };
 
 export default function EditorView() {
   let editor: Editor;
   let container: HTMLDivElement;
-  let currentEditorState: EditorState;
+  let saveInterval: number;
 
-  let timeout: number;
-
-
-  const editorDocumentState = createMemo(() => {
-    return {
-      doc: editorStore.currentDocument()?.content,
-      hashtags: editorStore.currentDocument()?.hashtags ?? {},
-    };
-  });
-
-  const $currentDocument = observable(editorDocumentState).subscribe((document) => {
-    if (document && editor) {
-      editor.state = createEditorState(document, editor.emitter);
-    }
-  });
-
-  const saveEditorState = () => {
-    if (currentEditorState) {
-      const currentState = currentEditorState.toJSON({
-        hashtags: Plugins.Hashtag,
-      });
-      editorStore.updateCurrentDocument(pb(), currentState.doc, currentState.hashtags);
-    }
-    timeout = window.setTimeout(saveEditorState, SAVE_EDITOR_INTERVAL);
-  };
+  const params = useParams<EditorParams>();
+  const navigate = useNavigate();
 
   createEffect(() => {
-    if (!editor && editorStore.isInitialized()) {
-      editor = createEditor(container, editorDocumentState());
-      currentEditorState = editor.state;
-      timeout = window.setTimeout(saveEditorState, SAVE_EDITOR_INTERVAL);
-      editor.emitter.on("update", (update) => {
-        currentEditorState = update.newState;
-      });
+    if (params.id) {
+      const previousDocumentId = untrack(DocumentCollection.state.currentDocumentId);
+
+      DocumentsCollection.actions.selectCurrentDocument(params.id);
+
+      if (editor && previousDocumentId && params.id !== previousDocumentId) {
+        const stateData = editor.view.state.toJSON({
+          hashtags: Plugins.Hashtag,
+        });
+
+        const documentData = {
+          content: stateData.doc,
+          hashtags: stateData.hashtags,
+        };
+
+        void DocumentsCollection.actions.saveDocument(pb(), previousDocumentId, documentData);
+
+        const newData = untrack(DocumentsCollection.state.currentDocumentData);
+        const state = createEditorState(unwrap(newData), editor.emitter);
+        editor.view.updateState(state);
+      }
+    }
+
+    if (!params.id) {
+      const currentId = DocumentsCollection.state.currentDocumentId();
+      navigate(`/${currentId}`, { replace: true });
+    }
+  });
+
+  createEffect(() => {
+    if (!editor && DocumentsCollection.state.isInitialized()) {
+      if (params.id !== DocumentsCollection.state.currentDocumentId()) {
+        navigate(`/${DocumentsCollection.state.currentDocumentId()}`, { replace: true });
+      }
+      editor = createEditor(container, unwrap(DocumentsCollection.state.currentDocumentData()));
+      saveInterval = window.setInterval(() => {
+        const documentId = DocumentCollection.state.currentDocumentId();
+
+        if (documentId) {
+          const stateData = editor.view.state.toJSON({
+            hashtags: Plugins.Hashtag,
+          });
+          void DocumentsCollection.actions.saveDocument(pb(), documentId, {
+            content: stateData.doc,
+            hashtags: stateData.hashtags,
+          });
+        }
+      }, SAVE_EDITOR_INTERVAL);
       console.info("editor is initialized");
     }
   });
 
   onCleanup(() => {
-    if (timeout) clearTimeout(timeout);
-    $currentDocument.unsubscribe();
-    editor?.emitter.off("update");
-    editor.view.destroy();
+    if (saveInterval) clearInterval(saveInterval);
+    editor?.view.destroy();
   });
 
-  return <div ref={(el) => (container = el)} class="editor" />;
+  return (
+    <div class="py-16 w-full max-w-5xl">
+      <header class="text-xl mb-8 pb-2 text-center border-b-2 border-b-accent border-b-solid">
+        <h1>{DocumentsCollection.state.currentDocument()?.title}</h1>
+      </header>
+      <div ref={(el) => (container = el)} class="editor" />
+    </div>
+  );
 }
