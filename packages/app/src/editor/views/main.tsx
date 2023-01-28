@@ -1,7 +1,6 @@
-import { A, Route, Router, Routes } from "@solidjs/router";
-import { For } from "solid-js";
-import DocumentCollection from "../lib/document-collection";
+import { Route, Router, Routes } from "@solidjs/router";
 import EditorView from "./editor";
+import NotesExplorer from "./notes-explorer";
 
 export default function MainView() {
   return (
@@ -14,20 +13,7 @@ export default function MainView() {
           </Routes>
         </div>
         <div class="drawer-side min-w-[20rem]">
-          <label for="my-drawer-2" class="drawer-overlay"></label>
-          <ul class="menu text-base-content py-16">
-            <For each={DocumentCollection.state.documents()}>
-              {(item) => {
-                return (
-                  <li class="block w-full px-8 text-right">
-                    <A href={`/${item.id}`} class="inline-block w-full">
-                      {item.title}
-                    </A>
-                  </li>
-                );
-              }}
-            </For>
-          </ul>
+          <NotesExplorer />
         </div>
       </div>
     </Router>
