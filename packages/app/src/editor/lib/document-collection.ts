@@ -15,7 +15,7 @@ declare class Document extends Record {
   };
 }
 
-type DocumentData = Pick<Document, "content" | "hashtags">;
+type DocumentData = Partial<Pick<Document, "title" | "content" | "hashtags">>;
 
 type DocumentStore = {
   isLoading: boolean;
@@ -54,6 +54,7 @@ const [store, setState] = createStore<DocumentStore>({
     return !this.currentDocument
       ? null
       : {
+          title: this.currentDocument.title,
           doc: this.currentDocument.content,
           hashtags: this.currentDocument.hashtags,
         };
@@ -111,7 +112,7 @@ const updateDocument = (id: string, data: DocumentData) => {
     return prev.map((doc) => {
       if (doc.id === id) {
         const newDoc = doc.clone() as Document;
-        newDoc.load(data);
+        newDoc.load({ ...newDoc, ...data });
         return newDoc;
       }
       return doc;
@@ -126,10 +127,9 @@ async function saveDocument(pb: PocketBase, id: string, data: DocumentData) {
   const updatedRecord = await pb.collection("documents").update<Document>(id, data);
 
   // console.log(updatedRecord);
-
+  updateDocument(updatedRecord.id, updatedRecord);
   setState(
     produce((state) => {
-      updateDocument(updatedRecord.id, updatedRecord);
       state.isSaving = false;
     })
   );

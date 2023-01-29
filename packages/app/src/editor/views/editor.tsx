@@ -6,6 +6,7 @@ import DocumentsCollection from "../lib/document-collection";
 import DocumentCollection from "../lib/document-collection";
 import { useNavigate, useParams } from "@solidjs/router";
 import { unwrap } from "solid-js/store";
+import EditorNoteTitle from "./editor-note-title";
 
 type Editor = ReturnType<typeof createEditor>;
 
@@ -79,9 +80,7 @@ export default function EditorView() {
 
   return (
     <div class="py-16 w-full max-w-5xl">
-      <header class="text-xl mb-8 pb-2 text-center border-b-2 border-b-accent border-b-solid">
-        <h1>{DocumentsCollection.state.currentDocument()?.title}</h1>
-      </header>
+      <EditorNoteTitle />
       <div ref={(el) => (container = el)} class="editor" />
     </div>
   );
