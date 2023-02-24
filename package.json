@@ -2,7 +2,7 @@
   "name": "fleet-notes",
   "private": true,
   "devDependencies": {
-    "prettier": "^2.8.1"
+    "prettier": "^2.8.4"
   },
   "scripts": {
     "build": "npm run build -w @fleeting-notes/app"

@@ -13,15 +13,15 @@
   },
   "author": "Martin Emmert",
   "devDependencies": {
-    "@vitest/ui": "^0.26.3",
-    "postcss-nested": "^6.0.0",
-    "typescript": "^4.9.4",
-    "vite": "^4.0.4"
+    "@vitest/ui": "^0.28.5",
+    "postcss-nested": "^6.0.1",
+    "typescript": "^4.9.5",
+    "vite": "^4.1.4"
   },
   "dependencies": {
     "highlight.js": "^11.7.0",
     "mitt": "^3.0.0",
-    "prosemirror-dev-toolkit": "^1.0.6",
+    "prosemirror-dev-toolkit": "^1.1.1",
     "prosemirror-state": "^1.4.2"
   }
 }
