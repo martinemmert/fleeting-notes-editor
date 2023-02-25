@@ -11,6 +11,7 @@ export default function NotesExplorer() {
   async function addNewSheet() {
     setIsLoading(true);
     const document = await DocumentCollection.actions.createDocument(pb(), "untitled");
+    console.log("foo", document);
     navigator(`/${document.id}`);
     setIsLoading(false);
   }
@@ -41,7 +42,7 @@ export default function NotesExplorer() {
             "btn-loading": isLoading(),
           }}
           isDisabled={isLoading()}
-          onPress={() => addNewSheet()}
+          onClick={() => addNewSheet()}
         >
           <svg class="block w-6 h-6" xmlns="http://www.w3.org/2000/svg">
             <use href="#file-plus" />
